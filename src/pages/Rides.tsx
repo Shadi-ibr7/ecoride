@@ -18,7 +18,22 @@ const mockRides: Ride[] = [
       id: 1,
       name: "Marie L.",
       rating: 4.8,
-      photoUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop"
+      photoUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop",
+      preferences: ["Pas de fumée", "Musique calme"],
+      reviews: [
+        {
+          id: 1,
+          author: "Thomas R.",
+          rating: 5,
+          comment: "Excellent voyage, conductrice très agréable",
+          date: "2024-03-15"
+        }
+      ]
+    },
+    vehicle: {
+      brand: "Tesla",
+      model: "Model 3",
+      energyType: "Électrique"
     },
     availableSeats: 3,
     price: 15,
@@ -34,7 +49,22 @@ const mockRides: Ride[] = [
       id: 2,
       name: "Thomas R.",
       rating: 4.5,
-      photoUrl: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=400&h=400&fit=crop"
+      photoUrl: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=400&h=400&fit=crop",
+      preferences: ["Discussion amicale", "Petits bagages uniquement"],
+      reviews: [
+        {
+          id: 2,
+          author: "Sophie M.",
+          rating: 4.5,
+          comment: "Très bon trajet, ponctuel et sympathique",
+          date: "2024-03-10"
+        }
+      ]
+    },
+    vehicle: {
+      brand: "Peugeot",
+      model: "208",
+      energyType: "Essence"
     },
     availableSeats: 2,
     price: 20,
