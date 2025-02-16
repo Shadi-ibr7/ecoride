@@ -1,16 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { format, addDays } from 'date-fns';
+import { format, addDays, differenceInHours } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { AlertCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import RideCard from '@/components/RideCard';
+import RideFilters from '@/components/RideFilters';
 import type { Ride } from '@/types/ride';
+import type { FilterValues } from '@/components/RideFilters';
 
-// Données de test
 const mockRides: Ride[] = [
   {
     id: 1,
@@ -49,6 +49,7 @@ const mockRides: Ride[] = [
 const Rides = () => {
   const [searchParams] = useSearchParams();
   const [rides, setRides] = useState<Ride[]>([]);
+  const [filteredRides, setFilteredRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
   const [nearestRideDate, setNearestRideDate] = useState<string | null>(null);
 
@@ -56,15 +57,29 @@ const Rides = () => {
   const to = searchParams.get('to');
   const date = searchParams.get('date');
 
+  const applyFilters = (ridesData: Ride[], filters: FilterValues) => {
+    return ridesData.filter(ride => {
+      if (filters.isEcological && !ride.isEcological) return false;
+      if (filters.maxPrice && ride.price > filters.maxPrice) return false;
+      if (filters.maxDuration) {
+        const durationInHours = differenceInHours(
+          new Date(ride.arrivalTime),
+          new Date(ride.departureTime)
+        );
+        if (durationInHours > filters.maxDuration) return false;
+      }
+      if (filters.minRating && ride.driver.rating < filters.minRating) return false;
+      return true;
+    });
+  };
+
   useEffect(() => {
     const searchRides = async () => {
       setLoading(true);
       try {
-        // Simuler un appel API
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         if (from && to && date) {
-          // Filtrer les trajets selon les critères
           const filteredRides = mockRides.filter(ride => 
             ride.departureCity.toLowerCase().includes(from.toLowerCase()) &&
             ride.arrivalCity.toLowerCase().includes(to.toLowerCase()) &&
@@ -72,12 +87,12 @@ const Rides = () => {
           );
 
           if (filteredRides.length === 0) {
-            // Simuler la recherche du prochain trajet disponible
             const nextRideDate = format(addDays(new Date(date), 3), 'yyyy-MM-dd');
             setNearestRideDate(nextRideDate);
           }
 
           setRides(filteredRides);
+          setFilteredRides(filteredRides);
         }
       } catch (error) {
         console.error('Erreur lors de la recherche des trajets:', error);
@@ -89,6 +104,11 @@ const Rides = () => {
     searchRides();
   }, [from, to, date]);
 
+  const handleFiltersChange = (filters: FilterValues) => {
+    const newFilteredRides = applyFilters(rides, filters);
+    setFilteredRides(newFilteredRides);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -97,7 +117,6 @@ const Rides = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SearchBar />
 
-          {/* Résultats de recherche */}
           <div className="mt-8">
             {loading ? (
               <div className="text-center py-12">
@@ -108,13 +127,19 @@ const Rides = () => {
                 {from && to && date ? (
                   <>
                     {rides.length > 0 ? (
-                      <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold text-gray-800">
-                          Trajets disponibles de {from} à {to}
-                        </h2>
-                        {rides.map(ride => (
-                          <RideCard key={ride.id} ride={ride} />
-                        ))}
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="md:col-span-1">
+                          <RideFilters onFiltersChange={handleFiltersChange} />
+                        </div>
+                        
+                        <div className="md:col-span-3 space-y-6">
+                          <h2 className="text-2xl font-semibold text-gray-800">
+                            {filteredRides.length} trajet{filteredRides.length > 1 ? 's' : ''} disponible{filteredRides.length > 1 ? 's' : ''} de {from} à {to}
+                          </h2>
+                          {filteredRides.map(ride => (
+                            <RideCard key={ride.id} ride={ride} />
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="text-center py-12">
