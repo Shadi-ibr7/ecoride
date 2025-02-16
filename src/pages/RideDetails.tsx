@@ -1,14 +1,29 @@
-
 import { useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Star, Clock, MapPin, Users, Car, Leaf } from 'lucide-react';
+import { Star, Clock, MapPin, Users, Car, Leaf, AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import type { Ride } from '@/types/ride';
 
-// Données de test enrichies
+const mockUser = {
+  isLoggedIn: false,
+  credits: 10
+};
+
 const mockRide: Ride = {
   id: 1,
   driver: {
@@ -50,7 +65,46 @@ const mockRide: Ride = {
 
 const RideDetails = () => {
   const { id } = useParams();
-  const ride = mockRide; // Dans un cas réel, on chargerait les données en fonction de l'ID
+  const ride = mockRide;
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+  const handleParticipateClick = () => {
+    if (!mockUser.isLoggedIn) {
+      toast.error("Vous devez être connecté pour participer à un covoiturage", {
+        description: "Veuillez vous connecter ou créer un compte.",
+        action: {
+          label: "Se connecter",
+          onClick: () => {
+            console.log("Redirection vers la page de connexion");
+          },
+        },
+      });
+      return;
+    }
+
+    if (mockUser.credits < ride.price) {
+      toast.error("Crédit insuffisant", {
+        description: `Vous avez ${mockUser.credits} crédits. Ce trajet en coûte ${ride.price}.`,
+      });
+      return;
+    }
+
+    if (ride.availableSeats <= 0) {
+      toast.error("Plus de places disponibles", {
+        description: "Désolé, toutes les places ont été réservées.",
+      });
+      return;
+    }
+
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmParticipation = () => {
+    toast.success("Réservation confirmée !", {
+      description: `Votre participation au trajet ${ride.departureCity} → ${ride.arrivalCity} a été enregistrée.`,
+    });
+    setShowConfirmDialog(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -59,7 +113,6 @@ const RideDetails = () => {
       <main className="flex-1 pt-24 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Informations principales */}
             <div className="md:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
@@ -98,7 +151,6 @@ const RideDetails = () => {
                 </CardContent>
               </Card>
 
-              {/* Informations véhicule */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl">Véhicule</CardTitle>
@@ -114,7 +166,6 @@ const RideDetails = () => {
                 </CardContent>
               </Card>
 
-              {/* Avis */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl">Avis sur {ride.driver.name}</CardTitle>
@@ -137,9 +188,36 @@ const RideDetails = () => {
                   ))}
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-2xl font-bold text-primary-600">{ride.price} crédits</p>
+                        <p className="text-sm text-gray-600">
+                          {ride.availableSeats} place{ride.availableSeats > 1 ? 's' : ''} disponible{ride.availableSeats > 1 ? 's' : ''}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={handleParticipateClick}
+                        disabled={ride.availableSeats <= 0}
+                        className="px-6"
+                      >
+                        Participer
+                      </Button>
+                    </div>
+                    {ride.availableSeats <= 0 && (
+                      <div className="flex items-center text-yellow-600 text-sm">
+                        <AlertCircle className="w-4 h-4 mr-2" />
+                        Plus aucune place disponible
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* Informations conducteur */}
             <div className="space-y-6">
               <Card>
                 <CardContent className="pt-6">
@@ -160,7 +238,6 @@ const RideDetails = () => {
                 </CardContent>
               </Card>
 
-              {/* Préférences */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl">Préférences du conducteur</CardTitle>
@@ -181,6 +258,27 @@ const RideDetails = () => {
       </main>
 
       <Footer />
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer votre participation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vous êtes sur le point de réserver une place pour le trajet
+              {' '}{ride.departureCity} → {ride.arrivalCity}{' '}
+              pour {ride.price} crédits.
+              <br /><br />
+              Date de départ : {format(new Date(ride.departureTime), 'PPP à HH:mm', { locale: fr })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmParticipation}>
+              Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
