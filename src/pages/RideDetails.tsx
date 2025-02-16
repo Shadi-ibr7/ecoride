@@ -1,4 +1,6 @@
+
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Star, Clock, MapPin, Users, Car, Leaf, AlertCircle } from 'lucide-react';
