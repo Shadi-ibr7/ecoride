@@ -23,6 +23,68 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Présentation Section */}
+      <section className="section bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6 animate-in">
+              <h2 className="h2 text-primary-800">
+                Votre partenaire pour une mobilité durable
+              </h2>
+              <p className="text-lg text-gray-600">
+                EcoRide est né d'une vision simple : rendre le covoiturage plus accessible, plus écologique et plus convivial. Notre plateforme connecte des milliers de voyageurs partageant les mêmes valeurs environnementales.
+              </p>
+              <ul className="space-y-4 text-gray-600">
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 text-primary-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Plus de 50 000 trajets partagés
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 text-primary-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  -30% d'émissions de CO2
+                </li>
+                <li className="flex items-center">
+                  <svg className="w-6 h-6 text-primary-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Communauté de 20 000 membres
+                </li>
+              </ul>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <img 
+                src="https://images.unsplash.com/photo-1501854140801-50d01698950b"
+                alt="Nature verdoyante" 
+                className="rounded-xl object-cover w-full h-48 animate-in glass"
+                style={{ animationDelay: '200ms' }}
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1472396961693-142e6e269027"
+                alt="Route pittoresque"
+                className="rounded-xl object-cover w-full h-48 animate-in glass"
+                style={{ animationDelay: '400ms' }}
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1438565434616-3ef039228b15"
+                alt="Aventure en montagne"
+                className="rounded-xl object-cover w-full h-48 animate-in glass"
+                style={{ animationDelay: '600ms' }}
+              />
+              <img 
+                src="https://images.unsplash.com/photo-1466721591366-2d5fba72006d"
+                alt="Voyage en nature"
+                className="rounded-xl object-cover w-full h-48 animate-in glass"
+                style={{ animationDelay: '800ms' }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="section bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
