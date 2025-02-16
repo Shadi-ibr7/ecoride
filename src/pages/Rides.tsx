@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { format, addDays, differenceInHours } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { AlertCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
-import RideCard from '@/components/RideCard';
 import RideFilters from '@/components/RideFilters';
+import RidesList from '@/components/rides/RidesList';
+import NoRidesFound from '@/components/rides/NoRidesFound';
 import type { Ride } from '@/types/ride';
 import type { FilterValues } from '@/components/RideFilters';
 
@@ -161,31 +160,10 @@ const Rides = () => {
                         <div className="md:col-span-1">
                           <RideFilters onFiltersChange={handleFiltersChange} />
                         </div>
-                        
-                        <div className="md:col-span-3 space-y-6">
-                          <h2 className="text-2xl font-semibold text-gray-800">
-                            {filteredRides.length} trajet{filteredRides.length > 1 ? 's' : ''} disponible{filteredRides.length > 1 ? 's' : ''} de {from} à {to}
-                          </h2>
-                          {filteredRides.map(ride => (
-                            <RideCard key={ride.id} ride={ride} />
-                          ))}
-                        </div>
+                        <RidesList rides={filteredRides} from={from} to={to} />
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <div className="inline-flex items-center p-4 bg-yellow-50 text-yellow-800 rounded-lg">
-                          <AlertCircle className="w-5 h-5 mr-2" />
-                          <div>
-                            <p>Aucun trajet disponible pour cette date.</p>
-                            {nearestRideDate && (
-                              <p className="mt-2">
-                                Premier trajet disponible le{' '}
-                                {format(new Date(nearestRideDate), 'PPP', { locale: fr })}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                      <NoRidesFound nearestRideDate={nearestRideDate} />
                     )}
                   </>
                 ) : (

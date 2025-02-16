@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Star, Clock, MapPin, Users, Car, Leaf, AlertCircle } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -19,6 +19,11 @@ import {
 import { toast } from "sonner";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import RideHeader from '@/components/rides/RideHeader';
+import VehicleInfo from '@/components/rides/VehicleInfo';
+import DriverReviews from '@/components/rides/DriverReviews';
+import DriverProfile from '@/components/rides/DriverProfile';
+import DriverPreferences from '@/components/rides/DriverPreferences';
 import type { Ride } from '@/types/ride';
 
 const mockUser = {
@@ -116,80 +121,9 @@ const RideDetails = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl text-primary-800">
-                    {ride.departureCity} → {ride.arrivalCity}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-4 text-gray-600">
-                    <Clock className="w-5 h-5" />
-                    <div>
-                      <p>Départ : {format(new Date(ride.departureTime), 'PPP à HH:mm', { locale: fr })}</p>
-                      <p>Arrivée : {format(new Date(ride.arrivalTime), 'PPP à HH:mm', { locale: fr })}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4 text-gray-600">
-                    <MapPin className="w-5 h-5" />
-                    <span>{ride.departureCity} → {ride.arrivalCity}</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Users className="w-5 h-5 text-gray-600" />
-                      <span>{ride.availableSeats} place{ride.availableSeats > 1 ? 's' : ''} disponible{ride.availableSeats > 1 ? 's' : ''}</span>
-                    </div>
-                    <p className="text-2xl font-bold text-primary-600">{ride.price} €</p>
-                  </div>
-
-                  {ride.isEcological && (
-                    <div className="flex items-center space-x-2 text-green-600">
-                      <Leaf className="w-5 h-5" />
-                      <span>Voyage écologique</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Véhicule</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <Car className="w-5 h-5 text-gray-600" />
-                    <div>
-                      <p className="font-medium">{ride.vehicle.brand} {ride.vehicle.model}</p>
-                      <p className="text-sm text-gray-600">Énergie : {ride.vehicle.energyType}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Avis sur {ride.driver.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {ride.driver.reviews.map(review => (
-                    <div key={review.id} className="border-b border-gray-200 last:border-0 pb-4 last:pb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium">{review.author}</span>
-                        <div className="flex items-center text-yellow-500">
-                          <Star className="w-4 h-4 fill-current" />
-                          <span className="ml-1">{review.rating.toFixed(1)}</span>
-                        </div>
-                      </div>
-                      <p className="text-gray-600">{review.comment}</p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {format(new Date(review.date), 'PP', { locale: fr })}
-                      </p>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              <RideHeader ride={ride} />
+              <VehicleInfo vehicle={ride.vehicle} />
+              <DriverReviews driver={ride.driver} />
 
               <Card>
                 <CardContent className="pt-6">
@@ -221,39 +155,8 @@ const RideDetails = () => {
             </div>
 
             <div className="space-y-6">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex flex-col items-center text-center space-y-4">
-                    <img
-                      src={ride.driver.photoUrl}
-                      alt={`Photo de ${ride.driver.name}`}
-                      className="w-24 h-24 rounded-full object-cover border-2 border-primary-200"
-                    />
-                    <div>
-                      <h3 className="text-xl font-medium">{ride.driver.name}</h3>
-                      <div className="flex items-center justify-center text-yellow-500 mt-1">
-                        <Star className="w-5 h-5 fill-current" />
-                        <span className="ml-1 text-lg">{ride.driver.rating.toFixed(1)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Préférences du conducteur</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {ride.driver.preferences.map((preference, index) => (
-                      <li key={index} className="flex items-center space-x-2 text-gray-600">
-                        <span>• {preference}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <DriverProfile driver={ride.driver} />
+              <DriverPreferences preferences={ride.driver.preferences} />
             </div>
           </div>
         </div>
