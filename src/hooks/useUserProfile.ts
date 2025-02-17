@@ -1,3 +1,4 @@
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Profile, Vehicle, DriverPreferences, CustomPreference } from '@/types/profile';
@@ -16,16 +17,25 @@ export const useUserProfile = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        if (error.code === '42P01') {
-          toast.error("Erreur de configuration", {
-            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
-          });
-        }
-        throw error;
+      if (error) throw error;
+      
+      if (!data) {
+        // Si le profil n'existe pas, créons-le
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            user_type: 'passenger'
+          })
+          .select('*')
+          .single();
+
+        if (createError) throw createError;
+        return newProfile as Profile;
       }
+
       return data as Profile;
     },
   });
@@ -41,14 +51,7 @@ export const useUserProfile = () => {
         .select('*')
         .eq('owner_id', user.id);
 
-      if (error) {
-        if (error.code === '42P01') {
-          toast.error("Erreur de configuration", {
-            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
-          });
-        }
-        throw error;
-      }
+      if (error) throw error;
       return data as Vehicle[];
     },
     enabled: !isProfileError,
@@ -64,14 +67,9 @@ export const useUserProfile = () => {
         .from('driver_preferences')
         .select('*')
         .eq('driver_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (driverError && driverError.code !== 'PGRST116') {
-        if (driverError.code === '42P01') {
-          toast.error("Erreur de configuration", {
-            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
-          });
-        }
         throw driverError;
       }
 
@@ -80,17 +78,10 @@ export const useUserProfile = () => {
         .select('*')
         .eq('driver_id', user.id);
 
-      if (customError) {
-        if (customError.code === '42P01') {
-          toast.error("Erreur de configuration", {
-            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
-          });
-        }
-        throw customError;
-      }
+      if (customError) throw customError;
 
       return {
-        driver: driverPrefs as DriverPreferences,
+        driver: driverPrefs as DriverPreferences | null,
         custom: customPrefs as CustomPreference[],
       };
     },
