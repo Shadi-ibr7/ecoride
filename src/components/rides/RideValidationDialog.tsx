@@ -33,7 +33,11 @@ const RideValidationDialog = ({
   isSubmitting
 }: RideValidationDialogProps) => {
   const [selectedRating, setSelectedRating] = useState(0);
-  const { register, handleSubmit, watch } = useForm<RideValidationForm>();
+  const { register, handleSubmit, setValue, watch } = useForm<RideValidationForm>({
+    defaultValues: {
+      isValidated: true
+    }
+  });
   const isValidated = watch('isValidated', true);
 
   return (
@@ -51,14 +55,14 @@ const RideValidationDialog = ({
               <Button
                 type="button"
                 variant={isValidated ? "default" : "outline"}
-                onClick={() => register('isValidated').onChange(true)}
+                onClick={() => setValue('isValidated', true)}
               >
                 Le trajet s'est bien passé
               </Button>
               <Button
                 type="button"
                 variant={!isValidated ? "destructive" : "outline"}
-                onClick={() => register('isValidated').onChange(false)}
+                onClick={() => setValue('isValidated', false)}
               >
                 J'ai rencontré un problème
               </Button>
@@ -76,7 +80,7 @@ const RideValidationDialog = ({
                       className={`p-2 ${selectedRating >= rating ? 'text-yellow-500' : 'text-gray-300'}`}
                       onClick={() => {
                         setSelectedRating(rating);
-                        register('rating').onChange(rating);
+                        setValue('rating', rating);
                       }}
                     >
                       <Star className="w-6 h-6 fill-current" />
