@@ -6,3 +6,6 @@ project_id = "xjhfkwimlaeomsjvqofv"
 [[db.sql]]
 name = "init"
 file = "sql/init.sql"
+
+[functions.notify-ride-cancellation]
+verify_jwt = true
