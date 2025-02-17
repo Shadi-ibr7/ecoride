@@ -3,3 +3,6 @@ project_id = "xjhfkwimlaeomsjvqofv"
 
 [functions.notify-ride-cancellation]
 verify_jwt = true
+
+[functions.notify-ride-completion]
+verify_jwt = true

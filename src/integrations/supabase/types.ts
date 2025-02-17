@@ -113,41 +113,85 @@ export type Database = {
           },
         ]
       }
+      ride_validations: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string | null
+          id: string
+          is_validated: boolean
+          rating: number | null
+          validation_status: string | null
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          is_validated: boolean
+          rating?: number | null
+          validation_status?: string | null
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          is_validated?: boolean
+          rating?: number | null
+          validation_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_validations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "ride_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rides: {
         Row: {
           arrival_address: string
           arrival_time: string
           available_seats: number
+          completed_at: string | null
           created_at: string | null
           departure_address: string
           departure_time: string
           driver_id: string
           id: string
           price: number
+          status: string | null
           vehicle_id: string
         }
         Insert: {
           arrival_address: string
           arrival_time: string
           available_seats: number
+          completed_at?: string | null
           created_at?: string | null
           departure_address: string
           departure_time: string
           driver_id: string
           id?: string
           price: number
+          status?: string | null
           vehicle_id: string
         }
         Update: {
           arrival_address?: string
           arrival_time?: string
           available_seats?: number
+          completed_at?: string | null
           created_at?: string | null
           departure_address?: string
           departure_time?: string
           driver_id?: string
           id?: string
           price?: number
+          status?: string | null
           vehicle_id?: string
         }
         Relationships: [
@@ -165,6 +209,7 @@ export type Database = {
           created_at: string | null
           credits: number
           id: string
+          pending_credits: number
           updated_at: string | null
           user_id: string
         }
@@ -172,6 +217,7 @@ export type Database = {
           created_at?: string | null
           credits?: number
           id?: string
+          pending_credits?: number
           updated_at?: string | null
           user_id: string
         }
@@ -179,6 +225,7 @@ export type Database = {
           created_at?: string | null
           credits?: number
           id?: string
+          pending_credits?: number
           updated_at?: string | null
           user_id?: string
         }
@@ -228,7 +275,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      user_type: "passenger" | "driver" | "both"
+      user_type: "passenger" | "driver" | "both" | "employee"
     }
     CompositeTypes: {
       [_ in never]: never

@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -6,6 +5,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from "sonner";
 import Navbar from '@/components/Navbar';
+import RideValidationDialog from '@/components/rides/RideValidationDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,12 +25,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from 'react';
-import { Ban } from 'lucide-react';
+import { Ban, Play, CheckCircle2 } from 'lucide-react';
 
 const RideHistory = () => {
   const { session } = useAuth();
   const queryClient = useQueryClient();
   const [selectedRideId, setSelectedRideId] = useState<string | null>(null);
+  const [rideToValidate, setRideToValidate] = useState<{
+    rideId: string;
+    bookingId: string;
+  } | null>(null);
 
   // Récupérer tous les trajets où l'utilisateur est conducteur ou passager
   const { data: rides, isLoading } = useQuery({
@@ -47,7 +51,8 @@ const RideHistory = () => {
             passenger_id,
             booking_status,
             created_at,
-            cancelled_at
+            cancelled_at,
+            ride_validations (*)
           )
         `)
         .eq('driver_id', session?.user?.id);
@@ -59,6 +64,7 @@ const RideHistory = () => {
         .from('ride_bookings')
         .select(`
           *,
+          ride_validations (*),
           rides (
             *,
             vehicles (*),
@@ -79,47 +85,92 @@ const RideHistory = () => {
     enabled: !!session?.user?.id
   });
 
-  // Mutation pour annuler un trajet
-  const cancelRide = useMutation({
+  // Mutation pour démarrer un trajet
+  const startRide = useMutation({
     mutationFn: async (rideId: string) => {
-      // Si c'est un conducteur qui annule, on annule toutes les réservations
-      const { data: isDriver } = await supabase
+      const { error } = await supabase
         .from('rides')
-        .select('driver_id')
+        .update({ status: 'in_progress' })
         .eq('id', rideId)
-        .single();
+        .eq('driver_id', session?.user?.id);
 
-      if (isDriver?.driver_id === session?.user?.id) {
-        // Annuler toutes les réservations
-        const { error } = await supabase
-          .from('ride_bookings')
-          .update({ booking_status: 'cancelled' })
-          .eq('ride_id', rideId)
-          .eq('booking_status', 'confirmed');
-
-        if (error) throw error;
-      } else {
-        // Annuler uniquement sa propre réservation
-        const { error } = await supabase
-          .from('ride_bookings')
-          .update({ booking_status: 'cancelled' })
-          .eq('ride_id', rideId)
-          .eq('passenger_id', session?.user?.id)
-          .eq('booking_status', 'confirmed');
-
-        if (error) throw error;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rides-history'] });
-      toast.success('Le trajet a été annulé avec succès');
-      setSelectedRideId(null);
+      toast.success('Le trajet a démarré');
     },
     onError: (error: Error) => {
-      toast.error("Erreur lors de l'annulation", {
+      toast.error('Erreur lors du démarrage du trajet', {
         description: error.message
       });
-    }
+    },
+  });
+
+  // Mutation pour terminer un trajet
+  const completeRide = useMutation({
+    mutationFn: async (rideId: string) => {
+      const { error } = await supabase
+        .from('rides')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', rideId)
+        .eq('driver_id', session?.user?.id);
+
+      if (error) throw error;
+
+      // Notifier les passagers
+      await supabase.functions.invoke('notify-ride-completion', {
+        body: { rideId }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rides-history'] });
+      toast.success('Le trajet est terminé');
+    },
+    onError: (error: Error) => {
+      toast.error('Erreur lors de la fin du trajet', {
+        description: error.message
+      });
+    },
+  });
+
+  // Mutation pour soumettre une validation
+  const submitValidation = useMutation({
+    mutationFn: async ({
+      bookingId,
+      isValidated,
+      comment,
+      rating
+    }: {
+      bookingId: string;
+      isValidated: boolean;
+      comment?: string;
+      rating?: number;
+    }) => {
+      const { error } = await supabase
+        .from('ride_validations')
+        .insert({
+          booking_id: bookingId,
+          is_validated: isValidated,
+          comment,
+          rating: isValidated ? rating : null
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rides-history'] });
+      toast.success('Merci pour votre retour !');
+      setRideToValidate(null);
+    },
+    onError: (error: Error) => {
+      toast.error('Erreur lors de la validation', {
+        description: error.message
+      });
+    },
   });
 
   if (isLoading) {
@@ -168,16 +219,38 @@ const RideHistory = () => {
                         <p className="text-sm text-gray-600">
                           Places réservées : {ride.ride_bookings?.filter(b => b.booking_status === 'confirmed').length || 0}
                         </p>
+                        <p className={`text-sm mt-2 ${
+                          ride.status === 'completed' ? 'text-green-600' :
+                          ride.status === 'in_progress' ? 'text-blue-600' :
+                          'text-gray-600'
+                        }`}>
+                          Statut : {
+                            ride.status === 'completed' ? 'Terminé' :
+                            ride.status === 'in_progress' ? 'En cours' :
+                            'En attente'
+                          }
+                        </p>
                       </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => setSelectedRideId(ride.id)}
-                        disabled={new Date(ride.departure_time) < new Date()}
-                      >
-                        <Ban className="w-4 h-4 mr-2" />
-                        Annuler
-                      </Button>
+                      <div className="space-x-2">
+                        {ride.status === 'pending' && (
+                          <Button
+                            onClick={() => startRide.mutate(ride.id)}
+                            disabled={startRide.isPending || new Date() > new Date(ride.departure_time)}
+                          >
+                            <Play className="w-4 h-4 mr-2" />
+                            Démarrer
+                          </Button>
+                        )}
+                        {ride.status === 'in_progress' && (
+                          <Button
+                            onClick={() => completeRide.mutate(ride.id)}
+                            disabled={completeRide.isPending}
+                          >
+                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                            Arrivé à destination
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -218,19 +291,26 @@ const RideHistory = () => {
                         <p className="text-sm text-gray-600">
                           Véhicule : {booking.rides.vehicles?.brand} {booking.rides.vehicles?.model}
                         </p>
-                        <p className={`text-sm ${booking.booking_status === 'cancelled' ? 'text-red-600' : 'text-green-600'}`}>
-                          Statut : {booking.booking_status === 'cancelled' ? 'Annulé' : 'Confirmé'}
+                        <p className={`text-sm ${
+                          booking.rides.status === 'completed' ? 'text-green-600' :
+                          booking.rides.status === 'in_progress' ? 'text-blue-600' :
+                          'text-gray-600'
+                        }`}>
+                          Statut : {
+                            booking.rides.status === 'completed' ? 'Terminé' :
+                            booking.rides.status === 'in_progress' ? 'En cours' :
+                            'En attente'
+                          }
                         </p>
                       </div>
-                      {booking.booking_status === 'confirmed' && (
+                      {booking.rides.status === 'completed' && !booking.ride_validations?.[0] && (
                         <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => setSelectedRideId(booking.rides.id)}
-                          disabled={new Date(booking.rides.departure_time) < new Date()}
+                          onClick={() => setRideToValidate({
+                            rideId: booking.rides.id,
+                            bookingId: booking.id
+                          })}
                         >
-                          <Ban className="w-4 h-4 mr-2" />
-                          Annuler
+                          Valider le trajet
                         </Button>
                       )}
                     </div>
@@ -247,25 +327,19 @@ const RideHistory = () => {
         </Card>
       </div>
 
-      <AlertDialog open={!!selectedRideId} onOpenChange={() => setSelectedRideId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer l'annulation</AlertDialogTitle>
-            <AlertDialogDescription>
-              Êtes-vous sûr de vouloir annuler ce trajet ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => selectedRideId && cancelRide.mutate(selectedRideId)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Confirmer l'annulation
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <RideValidationDialog
+        open={!!rideToValidate}
+        onOpenChange={(open) => !open && setRideToValidate(null)}
+        onSubmit={(data) => {
+          if (rideToValidate) {
+            submitValidation.mutate({
+              bookingId: rideToValidate.bookingId,
+              ...data
+            });
+          }
+        }}
+        isSubmitting={submitValidation.isPending}
+      />
     </div>
   );
 };
