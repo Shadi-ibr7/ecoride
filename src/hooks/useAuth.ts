@@ -73,10 +73,16 @@ export const useAuth = () => {
       });
       navigate('/login');
     },
-    onError: (error) => {
-      toast.error("Erreur lors de la création du compte", {
-        description: error.message
-      });
+    onError: (error: any) => {
+      if (error.message?.includes('User already registered') || error.message?.includes('user_already_exists')) {
+        toast.error("Erreur lors de la création du compte", {
+          description: "Cette adresse email est déjà utilisée. Veuillez vous connecter ou utiliser une autre adresse."
+        });
+      } else {
+        toast.error("Erreur lors de la création du compte", {
+          description: error.message
+        });
+      }
     },
   });
 
