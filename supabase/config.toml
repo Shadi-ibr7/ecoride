@@ -1,1 +1,8 @@
+
 project_id = "xjhfkwimlaeomsjvqofv"
+
+[db]
+# Create tables
+[[db.sql]]
+name = "init"
+file = "sql/init.sql"

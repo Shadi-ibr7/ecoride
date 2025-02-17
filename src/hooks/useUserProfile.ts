@@ -1,4 +1,3 @@
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Profile, Vehicle, DriverPreferences, CustomPreference } from '@/types/profile';
@@ -7,7 +6,7 @@ import { toast } from 'sonner';
 export const useUserProfile = () => {
   const queryClient = useQueryClient();
 
-  const { data: profile } = useQuery({
+  const { data: profile, isError: isProfileError } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -19,12 +18,19 @@ export const useUserProfile = () => {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '42P01') {
+          toast.error("Erreur de configuration", {
+            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
+          });
+        }
+        throw error;
+      }
       return data as Profile;
     },
   });
 
-  const { data: vehicles } = useQuery({
+  const { data: vehicles, isError: isVehiclesError } = useQuery({
     queryKey: ['vehicles'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -35,12 +41,20 @@ export const useUserProfile = () => {
         .select('*')
         .eq('owner_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '42P01') {
+          toast.error("Erreur de configuration", {
+            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
+          });
+        }
+        throw error;
+      }
       return data as Vehicle[];
     },
+    enabled: !isProfileError,
   });
 
-  const { data: preferences } = useQuery({
+  const { data: preferences, isError: isPreferencesError } = useQuery({
     queryKey: ['preferences'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -52,20 +66,35 @@ export const useUserProfile = () => {
         .eq('driver_id', user.id)
         .single();
 
-      if (driverError && driverError.code !== 'PGRST116') throw driverError;
+      if (driverError && driverError.code !== 'PGRST116') {
+        if (driverError.code === '42P01') {
+          toast.error("Erreur de configuration", {
+            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
+          });
+        }
+        throw driverError;
+      }
 
       const { data: customPrefs, error: customError } = await supabase
         .from('custom_preferences')
         .select('*')
         .eq('driver_id', user.id);
 
-      if (customError) throw customError;
+      if (customError) {
+        if (customError.code === '42P01') {
+          toast.error("Erreur de configuration", {
+            description: "Les tables nécessaires n'ont pas été créées. Veuillez contacter l'administrateur."
+          });
+        }
+        throw customError;
+      }
 
       return {
         driver: driverPrefs as DriverPreferences,
         custom: customPrefs as CustomPreference[],
       };
     },
+    enabled: !isProfileError && !isVehiclesError,
   });
 
   const updateProfile = useMutation({
