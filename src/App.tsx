@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Rides from "./pages/Rides";
 import RideDetails from "./pages/RideDetails";
 import NotFound from "./pages/NotFound";
+import EmployeeSpace from "./pages/EmployeeSpace";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/register" element={<Auth />} />
           <Route path="/rides" element={<Rides />} />
           <Route path="/rides/:id" element={<RideDetails />} />
+          <Route path="/employee" element={<EmployeeSpace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
