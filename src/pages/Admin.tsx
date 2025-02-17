@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -7,6 +6,7 @@ import { fr } from 'date-fns/locale';
 import { toast } from "sonner";
 import Navbar from '@/components/Navbar';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -40,7 +40,6 @@ const Admin = () => {
     fullName: '',
   });
 
-  // Vérifier que l'utilisateur est bien un admin
   const { data: userProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
@@ -56,14 +55,12 @@ const Admin = () => {
     enabled: !!session?.user?.id,
   });
 
-  // Rediriger si l'utilisateur n'est pas un admin
   useEffect(() => {
     if (userProfile && userProfile.user_type !== 'admin') {
       navigate('/');
     }
   }, [userProfile, navigate]);
 
-  // Récupérer tous les utilisateurs
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ['users'],
     queryFn: async () => {
@@ -78,7 +75,6 @@ const Admin = () => {
     enabled: !!userProfile && userProfile.user_type === 'admin',
   });
 
-  // Récupérer les statistiques des trajets
   const { data: ridesStats, isLoading: isLoadingRides } = useQuery({
     queryKey: ['rides-stats'],
     queryFn: async () => {
@@ -103,7 +99,6 @@ const Admin = () => {
     enabled: !!userProfile && userProfile.user_type === 'admin',
   });
 
-  // Récupérer les gains de la plateforme
   const { data: earningsStats, isLoading: isLoadingEarnings } = useQuery({
     queryKey: ['earnings-stats'],
     queryFn: async () => {
@@ -131,7 +126,6 @@ const Admin = () => {
     enabled: !!userProfile && userProfile.user_type === 'admin',
   });
 
-  // Mutation pour créer un compte employé
   const createEmployee = useMutation({
     mutationFn: async (employeeData: typeof newEmployee) => {
       const { data, error } = await supabase.rpc('create_employee_account', {
@@ -156,7 +150,6 @@ const Admin = () => {
     },
   });
 
-  // Mutation pour suspendre/réactiver un compte
   const toggleUserSuspension = useMutation({
     mutationFn: async ({ userId, isSuspended }: { userId: string; isSuspended: boolean }) => {
       const { error } = await supabase
