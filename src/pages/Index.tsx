@@ -1,12 +1,34 @@
-
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 const Index = () => {
+  const { session } = useAuth();
+
+  const { data: userProfile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_type')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const isDriver = userProfile?.user_type === 'driver' || userProfile?.user_type === 'both';
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
       <Navbar />
@@ -49,11 +71,24 @@ const Index = () => {
                   />
                 </div>
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-center gap-4">
                 <Button size="lg" className="px-8 py-6 text-lg bg-primary-600 hover:bg-primary-700 transition-all duration-300">
                   <Search className="w-5 h-5 mr-2" />
                   Rechercher
                 </Button>
+                {isDriver && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="px-8 py-6 text-lg border-primary-600 text-primary-600 hover:bg-primary-50 transition-all duration-300"
+                    asChild
+                  >
+                    <Link to="/create-ride">
+                      <Plus className="w-5 h-5 mr-2" />
+                      Proposer un trajet
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

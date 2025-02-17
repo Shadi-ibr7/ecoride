@@ -78,6 +78,53 @@ export type Database = {
         }
         Relationships: []
       }
+      rides: {
+        Row: {
+          arrival_address: string
+          arrival_time: string
+          available_seats: number
+          created_at: string | null
+          departure_address: string
+          departure_time: string
+          driver_id: string
+          id: string
+          price: number
+          vehicle_id: string
+        }
+        Insert: {
+          arrival_address: string
+          arrival_time: string
+          available_seats: number
+          created_at?: string | null
+          departure_address: string
+          departure_time: string
+          driver_id: string
+          id?: string
+          price: number
+          vehicle_id: string
+        }
+        Update: {
+          arrival_address?: string
+          arrival_time?: string
+          available_seats?: number
+          created_at?: string | null
+          departure_address?: string
+          departure_time?: string
+          driver_id?: string
+          id?: string
+          price?: number
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rides_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           brand: string | null
