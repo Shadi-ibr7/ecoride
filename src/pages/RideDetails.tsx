@@ -24,12 +24,9 @@ import VehicleInfo from '@/components/rides/VehicleInfo';
 import DriverReviews from '@/components/rides/DriverReviews';
 import DriverProfile from '@/components/rides/DriverProfile';
 import DriverPreferences from '@/components/rides/DriverPreferences';
+import { useRideBooking } from '@/hooks/useRideBooking';
+import { useAuth } from '@/hooks/useAuth';
 import type { Ride } from '@/types/ride';
-
-const mockUser = {
-  isLoggedIn: false,
-  credits: 10
-};
 
 const mockRide: Ride = {
   id: 1,
@@ -74,24 +71,19 @@ const RideDetails = () => {
   const { id } = useParams();
   const ride = mockRide;
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const { session } = useAuth();
+  const { bookRide } = useRideBooking();
 
   const handleParticipateClick = () => {
-    if (!mockUser.isLoggedIn) {
+    if (!session) {
       toast.error("Vous devez être connecté pour participer à un covoiturage", {
         description: "Veuillez vous connecter ou créer un compte.",
         action: {
           label: "Se connecter",
           onClick: () => {
-            console.log("Redirection vers la page de connexion");
+            window.location.href = '/login';
           },
         },
-      });
-      return;
-    }
-
-    if (mockUser.credits < ride.price) {
-      toast.error("Crédit insuffisant", {
-        description: `Vous avez ${mockUser.credits} crédits. Ce trajet en coûte ${ride.price}.`,
       });
       return;
     }
@@ -106,11 +98,17 @@ const RideDetails = () => {
     setShowConfirmDialog(true);
   };
 
-  const handleConfirmParticipation = () => {
-    toast.success("Réservation confirmée !", {
-      description: `Votre participation au trajet ${ride.departureCity} → ${ride.arrivalCity} a été enregistrée.`,
-    });
-    setShowConfirmDialog(false);
+  const handleConfirmParticipation = async () => {
+    try {
+      await bookRide.mutateAsync({
+        rideId: ride.id,
+        price: ride.price,
+      });
+      setShowConfirmDialog(false);
+    } catch (error) {
+      // L'erreur est déjà gérée par le hook useRideBooking
+      setShowConfirmDialog(false);
+    }
   };
 
   return (
@@ -137,10 +135,10 @@ const RideDetails = () => {
                       </div>
                       <Button
                         onClick={handleParticipateClick}
-                        disabled={ride.availableSeats <= 0}
+                        disabled={ride.availableSeats <= 0 || bookRide.isPending}
                         className="px-6"
                       >
-                        Participer
+                        {bookRide.isPending ? "En cours..." : "Participer"}
                       </Button>
                     </div>
                     {ride.availableSeats <= 0 && (
