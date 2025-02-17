@@ -9,7 +9,111 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      custom_preferences: {
+        Row: {
+          created_at: string | null
+          driver_id: string | null
+          id: string
+          preference: string
+        }
+        Insert: {
+          created_at?: string | null
+          driver_id?: string | null
+          id?: string
+          preference: string
+        }
+        Update: {
+          created_at?: string | null
+          driver_id?: string | null
+          id?: string
+          preference?: string
+        }
+        Relationships: []
+      }
+      driver_preferences: {
+        Row: {
+          created_at: string | null
+          driver_id: string | null
+          id: string
+          pets_allowed: boolean | null
+          smoking_allowed: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          driver_id?: string | null
+          id?: string
+          pets_allowed?: boolean | null
+          smoking_allowed?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          driver_id?: string | null
+          id?: string
+          pets_allowed?: boolean | null
+          smoking_allowed?: boolean | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          user_type: Database["public"]["Enums"]["user_type"] | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          brand: string | null
+          color: string | null
+          created_at: string | null
+          id: string
+          license_plate: string | null
+          model: string | null
+          owner_id: string | null
+          registration_date: string | null
+          seats: number | null
+        }
+        Insert: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          license_plate?: string | null
+          model?: string | null
+          owner_id?: string | null
+          registration_date?: string | null
+          seats?: number | null
+        }
+        Update: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          license_plate?: string | null
+          model?: string | null
+          owner_id?: string | null
+          registration_date?: string | null
+          seats?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +122,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_type: "passenger" | "driver" | "both"
     }
     CompositeTypes: {
       [_ in never]: never
