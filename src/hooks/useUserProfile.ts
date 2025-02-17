@@ -11,7 +11,7 @@ export const useUserProfile = () => {
     queryKey: ['profile'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not found');
+      if (!user) return null;
 
       const { data, error } = await supabase
         .from('profiles')
@@ -38,13 +38,14 @@ export const useUserProfile = () => {
 
       return data as Profile;
     },
+    enabled: true, // On laisse la requête s'exécuter, mais on retourne null si pas d'utilisateur
   });
 
   const { data: vehicles, isError: isVehiclesError } = useQuery({
     queryKey: ['vehicles'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not found');
+      if (!user) return [];
 
       const { data, error } = await supabase
         .from('vehicles')
@@ -61,7 +62,7 @@ export const useUserProfile = () => {
     queryKey: ['preferences'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not found');
+      if (!user) return { driver: null, custom: [] };
 
       const { data: driverPrefs, error: driverError } = await supabase
         .from('driver_preferences')
