@@ -10,6 +10,7 @@ import Rides from "./pages/Rides";
 import RideDetails from "./pages/RideDetails";
 import NotFound from "./pages/NotFound";
 import EmployeeSpace from "./pages/EmployeeSpace";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/rides" element={<Rides />} />
           <Route path="/rides/:id" element={<RideDetails />} />
           <Route path="/employee" element={<EmployeeSpace />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

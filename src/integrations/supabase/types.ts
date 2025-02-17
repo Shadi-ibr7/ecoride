@@ -54,26 +54,50 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_earnings: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
           full_name: string | null
           id: string
-          user_type: Database["public"]["Enums"]["user_type"] | null
+          is_suspended: boolean | null
+          user_type: Database["public"]["Enums"]["user_type_new"] | null
           username: string | null
         }
         Insert: {
           created_at?: string | null
           full_name?: string | null
           id: string
-          user_type?: Database["public"]["Enums"]["user_type"] | null
+          is_suspended?: boolean | null
+          user_type?: Database["public"]["Enums"]["user_type_new"] | null
           username?: string | null
         }
         Update: {
           created_at?: string | null
           full_name?: string | null
           id?: string
-          user_type?: Database["public"]["Enums"]["user_type"] | null
+          is_suspended?: boolean | null
+          user_type?: Database["public"]["Enums"]["user_type_new"] | null
           username?: string | null
         }
         Relationships: []
@@ -272,10 +296,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_employee_account: {
+        Args: {
+          email: string
+          password: string
+          username: string
+          full_name: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       user_type: "passenger" | "driver" | "both" | "employee"
+      user_type_new: "passenger" | "driver" | "both" | "employee" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
