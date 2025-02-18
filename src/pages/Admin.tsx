@@ -23,43 +23,24 @@ const Admin = () => {
   const createAdminAccount = useMutation({
     mutationFn: async () => {
       try {
-        // Vérifier si l'utilisateur existe déjà
-        const { data: existingUser } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('email', ADMIN_EMAIL)
-          .single();
-
-        if (existingUser) {
-          // Si l'utilisateur existe, mettre à jour son type en admin
-          await supabase.rpc('set_admin_user_type', {
-            user_id: existingUser.id
-          });
-          return;
-        }
-
         // Créer l'utilisateur
         const { data: { user }, error: signUpError } = await supabase.auth.signUp({
           email: ADMIN_EMAIL,
           password: ADMIN_PASSWORD,
-          options: {
-            data: {
-              user_type: 'admin'
-            }
-          }
         });
 
         if (signUpError) throw signUpError;
 
         if (!user) throw new Error('Erreur lors de la création de l\'utilisateur');
 
-        // Définir le type admin via la fonction RPC
+        // Mettre à jour le type en admin
         const { error: adminError } = await supabase.rpc('set_admin_user_type', {
           user_id: user.id
         });
 
         if (adminError) throw adminError;
 
+        return user;
       } catch (error) {
         console.error('Erreur:', error);
         throw error;
@@ -67,7 +48,7 @@ const Admin = () => {
     },
     onSuccess: () => {
       toast.success("Compte administrateur créé avec succès", {
-        description: "Veuillez vérifier votre email pour confirmer votre compte."
+        description: "Vous pouvez maintenant vous connecter avec les identifiants administrateur."
       });
       setIsCreatingAdmin(false);
     },
