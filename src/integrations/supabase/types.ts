@@ -237,6 +237,27 @@ export type Database = {
           },
         ]
       }
+      platform_earnings: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       possede: {
         Row: {
           role_id: number
@@ -291,6 +312,48 @@ export type Database = {
           is_suspended?: boolean | null
           user_type?: Database["public"]["Enums"]["user_type"] | null
           username?: string | null
+        }
+        Relationships: []
+      }
+      rides: {
+        Row: {
+          arrival_address: string
+          arrival_time: string
+          available_seats: number
+          created_at: string | null
+          departure_address: string
+          departure_time: string
+          driver_id: string | null
+          id: string
+          is_cancelled: boolean | null
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          arrival_address: string
+          arrival_time: string
+          available_seats: number
+          created_at?: string | null
+          departure_address: string
+          departure_time: string
+          driver_id?: string | null
+          id?: string
+          is_cancelled?: boolean | null
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          arrival_address?: string
+          arrival_time?: string
+          available_seats?: number
+          created_at?: string | null
+          departure_address?: string
+          departure_time?: string
+          driver_id?: string | null
+          id?: string
+          is_cancelled?: boolean | null
+          price?: number
+          updated_at?: string | null
         }
         Relationships: []
       }
