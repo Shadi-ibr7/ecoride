@@ -267,6 +267,33 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          is_suspended: boolean | null
+          user_type: Database["public"]["Enums"]["user_type"] | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          is_suspended?: boolean | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          is_suspended?: boolean | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       role: {
         Row: {
           libelle: string | null
@@ -411,6 +438,7 @@ export type Database = {
       }
     }
     Enums: {
+      user_type: "passenger" | "driver" | "both" | "admin" | "employee"
       user_type_new: "passenger" | "driver" | "both" | "employee" | "admin"
     }
     CompositeTypes: {
