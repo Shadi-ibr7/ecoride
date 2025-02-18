@@ -10,12 +10,20 @@ import Footer from "@/components/Footer";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import NoRidesFound from "@/components/rides/NoRidesFound";
+import type { FilterValues } from "@/components/RideFilters";
 
 const Index = () => {
   const [searchParams, setSearchParams] = useState({
     departureCity: "",
     arrivalCity: "",
     date: "",
+  });
+
+  const [filters, setFilters] = useState<FilterValues>({
+    isEcological: false,
+    maxPrice: null,
+    maxDuration: null,
+    minRating: null,
   });
 
   const { data: covoiturages, isLoading } = useQuery({
@@ -83,6 +91,22 @@ const Index = () => {
     }
   });
 
+  const handleSearch = (params: { departureCity: string; arrivalCity: string; date: string }) => {
+    setSearchParams(params);
+  };
+
+  const handleFiltersChange = (newFilters: FilterValues) => {
+    setFilters(newFilters);
+  };
+
+  // Trouver la date la plus proche d'un trajet disponible
+  const getNearestRideDate = () => {
+    if (!covoiturages || covoiturages.length === 0) return null;
+    
+    const dates = covoiturages.map(ride => ride.departureTime);
+    return dates.sort()[0];
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen">
@@ -101,16 +125,20 @@ const Index = () => {
         <h1 className="text-4xl font-bold text-center mb-8">
           Trouvez votre covoiturage idéal
         </h1>
-        <SearchBar onSearch={setSearchParams} />
+        <SearchBar onSearch={handleSearch} />
         <div className="mt-8 flex flex-col md:flex-row gap-6">
           <aside className="w-full md:w-1/4">
-            <RideFilters />
+            <RideFilters onFiltersChange={handleFiltersChange} />
           </aside>
           <div className="flex-1">
             {covoiturages && covoiturages.length > 0 ? (
-              <RidesList rides={covoiturages} />
+              <RidesList 
+                rides={covoiturages} 
+                from={searchParams.departureCity || "Toutes les villes"} 
+                to={searchParams.arrivalCity || "Toutes les villes"} 
+              />
             ) : (
-              <NoRidesFound />
+              <NoRidesFound nearestRideDate={getNearestRideDate()} />
             )}
           </div>
         </div>
