@@ -305,6 +305,12 @@ export type Database = {
         }
         Returns: string
       }
+      set_admin_user_type: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       user_type: "passenger" | "driver" | "both" | "employee"
