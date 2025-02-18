@@ -1,21 +1,67 @@
 
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import { Button } from "@/components/ui/button";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from "lucide-react";
 import RidesChart from '@/components/admin/RidesChart';
 import EarningsChart from '@/components/admin/EarningsChart';
 import UsersTable from '@/components/admin/UsersTable';
+import { toast } from "sonner";
 
 const ADMIN_EMAIL = 'jose@gmail.com';
+const ADMIN_PASSWORD = 'Azerty1234!';
 
 const Admin = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+
+  const createAdminAccount = useMutation({
+    mutationFn: async () => {
+      // Créer l'utilisateur avec l'API auth de Supabase
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
+        options: {
+          emailRedirectTo: window.location.origin,
+        }
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (authData.user) {
+        // Mettre à jour le type d'utilisateur en admin
+        const { error: adminError } = await supabase.rpc('set_admin_user_type', {
+          user_id: authData.user.id
+        });
+
+        if (adminError) throw adminError;
+
+        // Confirmer l'email manuellement via l'API admin
+        const { error: confirmError } = await supabase.auth.admin.updateUserById(
+          authData.user.id,
+          { email_confirm: true }
+        );
+
+        if (confirmError) throw confirmError;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Compte administrateur créé avec succès");
+      setIsCreatingAdmin(false);
+    },
+    onError: (error: Error) => {
+      console.error('Erreur création admin:', error);
+      toast.error("Erreur lors de la création du compte admin", {
+        description: error.message
+      });
+      setIsCreatingAdmin(false);
+    }
+  });
 
   const { data: userProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile', session?.user?.id],
@@ -28,7 +74,6 @@ const Admin = () => {
 
       if (profileError) throw profileError;
 
-      // Vérifier l'email de l'utilisateur
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
 
@@ -68,7 +113,37 @@ const Admin = () => {
     );
   }
 
-  if (userProfile?.email !== ADMIN_EMAIL || userProfile.user_type !== 'admin') {
+  const handleCreateAdmin = async () => {
+    setIsCreatingAdmin(true);
+    await createAdminAccount.mutateAsync();
+  };
+
+  // Si aucun admin n'existe, afficher le bouton de création
+  if (!userProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Configuration Administrative</h1>
+          <p className="text-gray-600 mb-4">Aucun administrateur n'est configuré.</p>
+          <Button 
+            onClick={handleCreateAdmin}
+            disabled={isCreatingAdmin}
+          >
+            {isCreatingAdmin ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Création en cours...
+              </>
+            ) : (
+              "Créer le compte administrateur"
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (userProfile.email !== ADMIN_EMAIL || userProfile.user_type !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
