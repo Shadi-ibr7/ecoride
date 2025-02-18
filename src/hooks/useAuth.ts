@@ -90,6 +90,7 @@ export const useAuth = () => {
       username: string; 
       fullName: string;
     }) => {
+      // Créer le compte utilisateur
       const { error: signUpError, data } = await supabase.auth.signUp({
         email,
         password,
@@ -102,6 +103,25 @@ export const useAuth = () => {
       });
       
       if (signUpError) throw signUpError;
+
+      // S'assurer qu'on a bien l'ID utilisateur
+      if (!data?.user?.id) {
+        throw new Error("Erreur lors de la création du compte");
+      }
+
+      // Créer le profil manuellement car le trigger peut prendre du temps
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: data.user.id,
+            username,
+            full_name: fullName,
+            user_type: 'passenger'
+          }
+        ]);
+
+      if (profileError) throw profileError;
     },
     onSuccess: () => {
       toast.success("Compte créé avec succès", {
