@@ -26,12 +26,12 @@ export const useAuth = () => {
       });
       if (error) throw error;
 
-      // On utilise maybeSingle() au lieu de single() pour éviter l'erreur si le profil n'existe pas
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
         .eq('id', (await supabase.auth.getUser()).data.user?.id)
-        .maybeSingle();
+        .limit(1)
+        .single();
 
       if (profileError) throw profileError;
 
@@ -48,7 +48,7 @@ export const useAuth = () => {
         navigate('/');
       }
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error("Erreur lors de la connexion", {
         description: error.message
       });
@@ -110,7 +110,7 @@ export const useAuth = () => {
       toast.success("Déconnexion réussie");
       navigate('/');
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error("Erreur lors de la déconnexion", {
         description: error.message
       });
