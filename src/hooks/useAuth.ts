@@ -29,14 +29,34 @@ export const useAuth = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user?.user?.id) throw new Error("Impossible de récupérer l'utilisateur");
 
-      const { data: profile, error: profileError } = await supabase
+      let { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
         .eq('id', user.user.id)
         .maybeSingle();
 
       if (profileError) throw profileError;
-      if (!profile) throw new Error("Profil utilisateur non trouvé");
+
+      // Si c'est l'admin et qu'il n'a pas de profil, on le crée
+      if (!profile && email === ADMIN_EMAIL) {
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: user.user.id,
+              user_type: 'admin',
+              username: 'admin',
+              full_name: 'Administrateur'
+            }
+          ])
+          .select('user_type')
+          .single();
+
+        if (insertError) throw insertError;
+        profile = newProfile;
+      } else if (!profile) {
+        throw new Error("Profil utilisateur non trouvé");
+      }
 
       return profile;
     },
