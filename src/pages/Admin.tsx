@@ -1,3 +1,4 @@
+
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -28,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Loader2 } from "lucide-react";
 
 const Admin = () => {
   const { session } = useAuth();
@@ -54,6 +56,12 @@ const Admin = () => {
     },
     enabled: !!session?.user?.id,
   });
+
+  useEffect(() => {
+    if (!session) {
+      navigate('/login');
+    }
+  }, [session, navigate]);
 
   useEffect(() => {
     if (userProfile && userProfile.user_type !== 'admin') {
@@ -170,12 +178,34 @@ const Admin = () => {
     },
   });
 
-  if (isLoadingProfile) {
-    return <div>Chargement...</div>;
+  if (!session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
-  if (!session || userProfile?.user_type !== 'admin') {
-    return null;
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (userProfile?.user_type !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Accès non autorisé</h1>
+          <p className="text-gray-600">Vous n'avez pas les droits d'accès à cette page.</p>
+          <Button className="mt-4" onClick={() => navigate('/')}>
+            Retourner à l'accueil
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -194,7 +224,9 @@ const Admin = () => {
             </CardHeader>
             <CardContent className="h-[300px]">
               {isLoadingRides ? (
-                <div>Chargement des statistiques...</div>
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={ridesStats}>
@@ -219,7 +251,9 @@ const Admin = () => {
             </CardHeader>
             <CardContent className="h-[300px]">
               {isLoadingEarnings ? (
-                <div>Chargement des statistiques...</div>
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={earningsStats?.byDate}>
@@ -316,7 +350,9 @@ const Admin = () => {
                     {isLoadingUsers ? (
                       <tr>
                         <td colSpan={5} className="py-4 px-4 text-center">
-                          Chargement des utilisateurs...
+                          <div className="flex items-center justify-center">
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                          </div>
                         </td>
                       </tr>
                     ) : users?.map((user) => (
