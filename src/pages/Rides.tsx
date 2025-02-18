@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { format, addDays, differenceInHours } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -76,7 +77,7 @@ const mockRides: Ride[] = [
 ];
 
 const Rides = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [rides, setRides] = useState<Ride[]>([]);
   const [filteredRides, setFilteredRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,6 +86,14 @@ const Rides = () => {
   const from = searchParams.get('from');
   const to = searchParams.get('to');
   const date = searchParams.get('date');
+
+  const handleSearch = (params: { departureCity: string; arrivalCity: string; date: string }) => {
+    const newSearchParams = new URLSearchParams();
+    newSearchParams.set('from', params.departureCity);
+    newSearchParams.set('to', params.arrivalCity);
+    newSearchParams.set('date', params.date);
+    setSearchParams(newSearchParams);
+  };
 
   const applyFilters = (ridesData: Ride[], filters: FilterValues) => {
     return ridesData.filter(ride => {
@@ -144,7 +153,7 @@ const Rides = () => {
       
       <main className="flex-1 pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SearchBar />
+          <SearchBar onSearch={handleSearch} />
 
           <div className="mt-8">
             {loading ? (
