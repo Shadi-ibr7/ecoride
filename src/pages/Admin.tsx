@@ -22,36 +22,53 @@ const Admin = () => {
 
   const createAdminAccount = useMutation({
     mutationFn: async () => {
-      // Créer l'utilisateur avec l'API auth de Supabase
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email: ADMIN_EMAIL,
-        password: ADMIN_PASSWORD,
-        options: {
-          emailRedirectTo: window.location.origin,
+      try {
+        // Vérifier si l'utilisateur existe déjà
+        const { data: existingUser } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', ADMIN_EMAIL)
+          .single();
+
+        if (existingUser) {
+          // Si l'utilisateur existe, mettre à jour son type en admin
+          await supabase.rpc('set_admin_user_type', {
+            user_id: existingUser.id
+          });
+          return;
         }
-      });
 
-      if (signUpError) throw signUpError;
+        // Créer l'utilisateur
+        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+          email: ADMIN_EMAIL,
+          password: ADMIN_PASSWORD,
+          options: {
+            data: {
+              user_type: 'admin'
+            }
+          }
+        });
 
-      if (authData.user) {
-        // Mettre à jour le type d'utilisateur en admin
+        if (signUpError) throw signUpError;
+
+        if (!user) throw new Error('Erreur lors de la création de l\'utilisateur');
+
+        // Définir le type admin via la fonction RPC
         const { error: adminError } = await supabase.rpc('set_admin_user_type', {
-          user_id: authData.user.id
+          user_id: user.id
         });
 
         if (adminError) throw adminError;
 
-        // Confirmer l'email manuellement via l'API admin
-        const { error: confirmError } = await supabase.auth.admin.updateUserById(
-          authData.user.id,
-          { email_confirm: true }
-        );
-
-        if (confirmError) throw confirmError;
+      } catch (error) {
+        console.error('Erreur:', error);
+        throw error;
       }
     },
     onSuccess: () => {
-      toast.success("Compte administrateur créé avec succès");
+      toast.success("Compte administrateur créé avec succès", {
+        description: "Veuillez vérifier votre email pour confirmer votre compte."
+      });
       setIsCreatingAdmin(false);
     },
     onError: (error: Error) => {
