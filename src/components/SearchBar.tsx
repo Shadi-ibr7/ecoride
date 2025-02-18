@@ -1,18 +1,23 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Calendar } from 'lucide-react';
+import { Search } from 'lucide-react';
 
-const SearchBar = () => {
-  const navigate = useNavigate();
+interface SearchBarProps {
+  onSearch: (params: { departureCity: string; arrivalCity: string; date: string }) => void;
+}
+
+const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [departure, setDeparture] = useState('');
   const [arrival, setArrival] = useState('');
   const [date, setDate] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Naviguer vers la page des trajets avec les paramètres de recherche
-    navigate(`/rides?from=${departure}&to=${arrival}&date=${date}`);
+    onSearch({
+      departureCity: departure,
+      arrivalCity: arrival,
+      date: date,
+    });
   };
 
   return (
