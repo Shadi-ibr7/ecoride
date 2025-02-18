@@ -26,12 +26,12 @@ export const useAuth = () => {
       });
       if (error) throw error;
 
-      // Vérifier si c'est l'admin qui se connecte
+      // On utilise maybeSingle() au lieu de single() pour éviter l'erreur si le profil n'existe pas
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
         .eq('id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) throw profileError;
 
@@ -70,21 +70,15 @@ export const useAuth = () => {
       const { error: signUpError, data } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username,
+            full_name: fullName
+          }
+        }
       });
       
       if (signUpError) throw signUpError;
-
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            username,
-            full_name: fullName,
-          });
-
-        if (profileError) throw profileError;
-      }
     },
     onSuccess: () => {
       toast.success("Compte créé avec succès", {
