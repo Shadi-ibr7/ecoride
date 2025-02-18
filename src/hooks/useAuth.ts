@@ -26,14 +26,17 @@ export const useAuth = () => {
       });
       if (error) throw error;
 
+      const { data: user } = await supabase.auth.getUser();
+      if (!user?.user?.id) throw new Error("Impossible de récupérer l'utilisateur");
+
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
-        .eq('id', (await supabase.auth.getUser()).data.user?.id)
-        .limit(1)
-        .single();
+        .eq('id', user.user.id)
+        .maybeSingle();
 
       if (profileError) throw profileError;
+      if (!profile) throw new Error("Profil utilisateur non trouvé");
 
       return profile;
     },
