@@ -9,287 +9,385 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      custom_preferences: {
+      avis: {
         Row: {
-          created_at: string | null
-          driver_id: string | null
-          id: string
-          preference: string
+          avis_id: number
+          commentaire: string | null
+          note: string | null
+          statut: string | null
         }
         Insert: {
-          created_at?: string | null
-          driver_id?: string | null
-          id?: string
-          preference: string
+          avis_id?: number
+          commentaire?: string | null
+          note?: string | null
+          statut?: string | null
         }
         Update: {
-          created_at?: string | null
-          driver_id?: string | null
-          id?: string
-          preference?: string
+          avis_id?: number
+          commentaire?: string | null
+          note?: string | null
+          statut?: string | null
         }
         Relationships: []
       }
-      driver_preferences: {
+      configuration: {
         Row: {
-          created_at: string | null
-          driver_id: string | null
-          id: string
-          pets_allowed: boolean | null
-          smoking_allowed: boolean | null
+          id_configuration: number
+          parametre: number | null
         }
         Insert: {
-          created_at?: string | null
-          driver_id?: string | null
-          id?: string
-          pets_allowed?: boolean | null
-          smoking_allowed?: boolean | null
+          id_configuration?: number
+          parametre?: number | null
         }
         Update: {
-          created_at?: string | null
-          driver_id?: string | null
-          id?: string
-          pets_allowed?: boolean | null
-          smoking_allowed?: boolean | null
+          id_configuration?: number
+          parametre?: number | null
         }
         Relationships: []
       }
-      platform_earnings: {
+      covoiturage: {
         Row: {
-          amount: number
-          created_at: string | null
-          description: string | null
-          id: string
+          covoiturage_id: number
+          date_arrivee: string | null
+          date_depart: string | null
+          heure_arrivee: string | null
+          heure_depart: string | null
+          lieu_arrivee: string | null
+          lieu_depart: string | null
+          nb_place: number | null
+          prix_personne: number | null
+          statut: string | null
         }
         Insert: {
-          amount: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
+          covoiturage_id?: number
+          date_arrivee?: string | null
+          date_depart?: string | null
+          heure_arrivee?: string | null
+          heure_depart?: string | null
+          lieu_arrivee?: string | null
+          lieu_depart?: string | null
+          nb_place?: number | null
+          prix_personne?: number | null
+          statut?: string | null
         }
         Update: {
-          amount?: number
-          created_at?: string | null
-          description?: string | null
-          id?: string
+          covoiturage_id?: number
+          date_arrivee?: string | null
+          date_depart?: string | null
+          heure_arrivee?: string | null
+          heure_depart?: string | null
+          lieu_arrivee?: string | null
+          lieu_depart?: string | null
+          nb_place?: number | null
+          prix_personne?: number | null
+          statut?: string | null
         }
         Relationships: []
       }
-      profiles: {
+      depose: {
         Row: {
-          created_at: string | null
-          full_name: string | null
-          id: string
-          is_suspended: boolean | null
-          user_type: Database["public"]["Enums"]["user_type_new"] | null
-          username: string | null
+          avis_id: number
+          utilisateur_id: number
         }
         Insert: {
-          created_at?: string | null
-          full_name?: string | null
-          id: string
-          is_suspended?: boolean | null
-          user_type?: Database["public"]["Enums"]["user_type_new"] | null
-          username?: string | null
+          avis_id: number
+          utilisateur_id: number
         }
         Update: {
-          created_at?: string | null
-          full_name?: string | null
-          id?: string
-          is_suspended?: boolean | null
-          user_type?: Database["public"]["Enums"]["user_type_new"] | null
-          username?: string | null
-        }
-        Relationships: []
-      }
-      ride_bookings: {
-        Row: {
-          booking_status: string | null
-          cancelled_at: string | null
-          created_at: string | null
-          id: string
-          passenger_id: string
-          ride_id: string
-        }
-        Insert: {
-          booking_status?: string | null
-          cancelled_at?: string | null
-          created_at?: string | null
-          id?: string
-          passenger_id: string
-          ride_id: string
-        }
-        Update: {
-          booking_status?: string | null
-          cancelled_at?: string | null
-          created_at?: string | null
-          id?: string
-          passenger_id?: string
-          ride_id?: string
+          avis_id?: number
+          utilisateur_id?: number
         }
         Relationships: [
           {
-            foreignKeyName: "ride_bookings_ride_id_fkey"
-            columns: ["ride_id"]
+            foreignKeyName: "depose_avis_id_fkey"
+            columns: ["avis_id"]
             isOneToOne: false
-            referencedRelation: "rides"
-            referencedColumns: ["id"]
+            referencedRelation: "avis"
+            referencedColumns: ["avis_id"]
           },
-        ]
-      }
-      ride_validations: {
-        Row: {
-          booking_id: string
-          comment: string | null
-          created_at: string | null
-          id: string
-          is_validated: boolean
-          rating: number | null
-          validation_status: string | null
-        }
-        Insert: {
-          booking_id: string
-          comment?: string | null
-          created_at?: string | null
-          id?: string
-          is_validated: boolean
-          rating?: number | null
-          validation_status?: string | null
-        }
-        Update: {
-          booking_id?: string
-          comment?: string | null
-          created_at?: string | null
-          id?: string
-          is_validated?: boolean
-          rating?: number | null
-          validation_status?: string | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "ride_validations_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: true
-            referencedRelation: "ride_bookings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      rides: {
-        Row: {
-          arrival_address: string
-          arrival_time: string
-          available_seats: number
-          completed_at: string | null
-          created_at: string | null
-          departure_address: string
-          departure_time: string
-          driver_id: string
-          id: string
-          price: number
-          status: string | null
-          vehicle_id: string
-        }
-        Insert: {
-          arrival_address: string
-          arrival_time: string
-          available_seats: number
-          completed_at?: string | null
-          created_at?: string | null
-          departure_address: string
-          departure_time: string
-          driver_id: string
-          id?: string
-          price: number
-          status?: string | null
-          vehicle_id: string
-        }
-        Update: {
-          arrival_address?: string
-          arrival_time?: string
-          available_seats?: number
-          completed_at?: string | null
-          created_at?: string | null
-          departure_address?: string
-          departure_time?: string
-          driver_id?: string
-          id?: string
-          price?: number
-          status?: string | null
-          vehicle_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "rides_vehicle_id_fkey"
-            columns: ["vehicle_id"]
+            foreignKeyName: "depose_utilisateur_id_fkey"
+            columns: ["utilisateur_id"]
             isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
+            referencedRelation: "utilisateur"
+            referencedColumns: ["utilisateur_id"]
           },
         ]
       }
-      user_credits: {
+      dispose: {
         Row: {
-          created_at: string | null
-          credits: number
-          id: string
-          pending_credits: number
-          updated_at: string | null
-          user_id: string
+          configuration_id: number
+          parametre_id: number
         }
         Insert: {
-          created_at?: string | null
-          credits?: number
-          id?: string
-          pending_credits?: number
-          updated_at?: string | null
-          user_id: string
+          configuration_id: number
+          parametre_id: number
         }
         Update: {
-          created_at?: string | null
-          credits?: number
-          id?: string
-          pending_credits?: number
-          updated_at?: string | null
-          user_id?: string
+          configuration_id?: number
+          parametre_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispose_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "configuration"
+            referencedColumns: ["id_configuration"]
+          },
+          {
+            foreignKeyName: "dispose_parametre_id_fkey"
+            columns: ["parametre_id"]
+            isOneToOne: false
+            referencedRelation: "parametre"
+            referencedColumns: ["parametre_id"]
+          },
+        ]
+      }
+      gere: {
+        Row: {
+          utilisateur_id: number
+          voiture_id: number
+        }
+        Insert: {
+          utilisateur_id: number
+          voiture_id: number
+        }
+        Update: {
+          utilisateur_id?: number
+          voiture_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gere_utilisateur_id_fkey"
+            columns: ["utilisateur_id"]
+            isOneToOne: false
+            referencedRelation: "utilisateur"
+            referencedColumns: ["utilisateur_id"]
+          },
+          {
+            foreignKeyName: "gere_voiture_id_fkey"
+            columns: ["voiture_id"]
+            isOneToOne: false
+            referencedRelation: "voiture"
+            referencedColumns: ["voiture_id"]
+          },
+        ]
+      }
+      marque: {
+        Row: {
+          libelle: string | null
+          marque_id: number
+        }
+        Insert: {
+          libelle?: string | null
+          marque_id?: number
+        }
+        Update: {
+          libelle?: string | null
+          marque_id?: number
         }
         Relationships: []
       }
-      vehicles: {
+      parametre: {
         Row: {
-          brand: string | null
-          color: string | null
-          created_at: string | null
-          id: string
-          license_plate: string | null
-          model: string | null
-          owner_id: string | null
-          registration_date: string | null
-          seats: number | null
+          parametre_id: number
+          propriete: string | null
+          valeur: string | null
         }
         Insert: {
-          brand?: string | null
-          color?: string | null
-          created_at?: string | null
-          id?: string
-          license_plate?: string | null
-          model?: string | null
-          owner_id?: string | null
-          registration_date?: string | null
-          seats?: number | null
+          parametre_id?: number
+          propriete?: string | null
+          valeur?: string | null
         }
         Update: {
-          brand?: string | null
-          color?: string | null
-          created_at?: string | null
-          id?: string
-          license_plate?: string | null
-          model?: string | null
-          owner_id?: string | null
-          registration_date?: string | null
-          seats?: number | null
+          parametre_id?: number
+          propriete?: string | null
+          valeur?: string | null
         }
         Relationships: []
+      }
+      participe: {
+        Row: {
+          covoiturage_id: number
+          utilisateur_id: number
+        }
+        Insert: {
+          covoiturage_id: number
+          utilisateur_id: number
+        }
+        Update: {
+          covoiturage_id?: number
+          utilisateur_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participe_covoiturage_id_fkey"
+            columns: ["covoiturage_id"]
+            isOneToOne: false
+            referencedRelation: "covoiturage"
+            referencedColumns: ["covoiturage_id"]
+          },
+          {
+            foreignKeyName: "participe_utilisateur_id_fkey"
+            columns: ["utilisateur_id"]
+            isOneToOne: false
+            referencedRelation: "utilisateur"
+            referencedColumns: ["utilisateur_id"]
+          },
+        ]
+      }
+      possede: {
+        Row: {
+          role_id: number
+          utilisateur_id: number
+        }
+        Insert: {
+          role_id: number
+          utilisateur_id: number
+        }
+        Update: {
+          role_id?: number
+          utilisateur_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "possede_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "role"
+            referencedColumns: ["role_id"]
+          },
+          {
+            foreignKeyName: "possede_utilisateur_id_fkey"
+            columns: ["utilisateur_id"]
+            isOneToOne: false
+            referencedRelation: "utilisateur"
+            referencedColumns: ["utilisateur_id"]
+          },
+        ]
+      }
+      role: {
+        Row: {
+          libelle: string | null
+          role_id: number
+        }
+        Insert: {
+          libelle?: string | null
+          role_id?: number
+        }
+        Update: {
+          libelle?: string | null
+          role_id?: number
+        }
+        Relationships: []
+      }
+      utilisateur: {
+        Row: {
+          adresse: string | null
+          date_naissance: string | null
+          email: string | null
+          nom: string | null
+          password: string | null
+          photo: string | null
+          prenom: string | null
+          pseudo: string | null
+          telephone: string | null
+          utilisateur_id: number
+        }
+        Insert: {
+          adresse?: string | null
+          date_naissance?: string | null
+          email?: string | null
+          nom?: string | null
+          password?: string | null
+          photo?: string | null
+          prenom?: string | null
+          pseudo?: string | null
+          telephone?: string | null
+          utilisateur_id?: number
+        }
+        Update: {
+          adresse?: string | null
+          date_naissance?: string | null
+          email?: string | null
+          nom?: string | null
+          password?: string | null
+          photo?: string | null
+          prenom?: string | null
+          pseudo?: string | null
+          telephone?: string | null
+          utilisateur_id?: number
+        }
+        Relationships: []
+      }
+      utilise: {
+        Row: {
+          covoiturage_id: number
+          voiture_id: number
+        }
+        Insert: {
+          covoiturage_id: number
+          voiture_id: number
+        }
+        Update: {
+          covoiturage_id?: number
+          voiture_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "utilise_covoiturage_id_fkey"
+            columns: ["covoiturage_id"]
+            isOneToOne: false
+            referencedRelation: "covoiturage"
+            referencedColumns: ["covoiturage_id"]
+          },
+          {
+            foreignKeyName: "utilise_voiture_id_fkey"
+            columns: ["voiture_id"]
+            isOneToOne: false
+            referencedRelation: "voiture"
+            referencedColumns: ["voiture_id"]
+          },
+        ]
+      }
+      voiture: {
+        Row: {
+          couleur: string | null
+          date_premiere_immatriculation: string | null
+          energie: string | null
+          immatriculation: string | null
+          marque_id: number | null
+          modele: string | null
+          voiture_id: number
+        }
+        Insert: {
+          couleur?: string | null
+          date_premiere_immatriculation?: string | null
+          energie?: string | null
+          immatriculation?: string | null
+          marque_id?: number | null
+          modele?: string | null
+          voiture_id?: number
+        }
+        Update: {
+          couleur?: string | null
+          date_premiere_immatriculation?: string | null
+          energie?: string | null
+          immatriculation?: string | null
+          marque_id?: number | null
+          modele?: string | null
+          voiture_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voiture_marque_id_fkey"
+            columns: ["marque_id"]
+            isOneToOne: false
+            referencedRelation: "marque"
+            referencedColumns: ["marque_id"]
+          },
+        ]
       }
     }
     Views: {
@@ -313,7 +411,6 @@ export type Database = {
       }
     }
     Enums: {
-      user_type: "passenger" | "driver" | "both" | "employee"
       user_type_new: "passenger" | "driver" | "both" | "employee" | "admin"
     }
     CompositeTypes: {
