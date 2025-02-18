@@ -1,10 +1,13 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, User, Car, Mail } from 'lucide-react';
+import { Menu, X, User, Car, Mail, Settings } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from './ui/button';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { session, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
@@ -20,7 +23,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
+          <div className="hidden md:flex md:items-center md:space-x-4">
             <Link 
               to="/rides" 
               className="text-gray-700 hover:text-primary-600 px-3 py-2 transition-colors flex items-center"
@@ -35,13 +38,33 @@ const Navbar = () => {
               <Mail className="w-5 h-5 mr-1" />
               Contact
             </Link>
-            <Link 
-              to="/login" 
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 transition-colors flex items-center"
-            >
-              <User className="w-5 h-5 mr-1" />
-              Connexion
-            </Link>
+            {session ? (
+              <>
+                <Link 
+                  to="/admin" 
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 transition-colors flex items-center"
+                >
+                  <Settings className="w-5 h-5 mr-1" />
+                  Administration
+                </Link>
+                <Button 
+                  variant="ghost"
+                  onClick={() => signOut.mutate()}
+                  className="text-gray-700"
+                >
+                  <User className="w-5 h-5 mr-1" />
+                  Déconnexion
+                </Button>
+              </>
+            ) : (
+              <Link 
+                to="/login" 
+                className="text-gray-700 hover:text-primary-600 px-3 py-2 transition-colors flex items-center"
+              >
+                <User className="w-5 h-5 mr-1" />
+                Connexion
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -76,14 +99,37 @@ const Navbar = () => {
             <Mail className="w-5 h-5 mr-2" />
             Contact
           </Link>
-          <Link
-            to="/login"
-            className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors flex items-center"
-            onClick={() => setIsOpen(false)}
-          >
-            <User className="w-5 h-5 mr-2" />
-            Connexion
-          </Link>
+          {session ? (
+            <>
+              <Link
+                to="/admin"
+                className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors flex items-center"
+                onClick={() => setIsOpen(false)}
+              >
+                <Settings className="w-5 h-5 mr-2" />
+                Administration
+              </Link>
+              <button
+                onClick={() => {
+                  signOut.mutate();
+                  setIsOpen(false);
+                }}
+                className="block w-full text-left px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors flex items-center"
+              >
+                <User className="w-5 h-5 mr-2" />
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors flex items-center"
+              onClick={() => setIsOpen(false)}
+            >
+              <User className="w-5 h-5 mr-2" />
+              Connexion
+            </Link>
+          )}
         </div>
       </div>
     </nav>
