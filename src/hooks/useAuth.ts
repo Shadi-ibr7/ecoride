@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
 
+const ADMIN_EMAIL = 'jose@gmail.com';
+
 export const useAuth = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -23,11 +25,28 @@ export const useAuth = () => {
         password,
       });
       if (error) throw error;
+
+      // Vérifier si c'est l'admin qui se connecte
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_type')
+        .eq('id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      return profile;
     },
-    onSuccess: () => {
+    onSuccess: (profile) => {
       queryClient.invalidateQueries({ queryKey: ['session'] });
       toast.success("Connexion réussie");
-      navigate('/');
+      
+      // Rediriger vers /admin si c'est l'admin, sinon vers la page d'accueil
+      if (profile?.user_type === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     },
     onError: (error) => {
       toast.error("Erreur lors de la connexion", {
