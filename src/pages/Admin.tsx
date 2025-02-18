@@ -11,6 +11,8 @@ import RidesChart from '@/components/admin/RidesChart';
 import EarningsChart from '@/components/admin/EarningsChart';
 import UsersTable from '@/components/admin/UsersTable';
 
+const ADMIN_EMAIL = 'jose@gmail.com';
+
 const Admin = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -18,14 +20,22 @@ const Admin = () => {
   const { data: userProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session?.user?.id)
         .single();
 
-      if (error) throw error;
-      return data;
+      if (profileError) throw profileError;
+
+      // Vérifier l'email de l'utilisateur
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+
+      return {
+        ...profile,
+        email: user?.email
+      };
     },
     enabled: !!session?.user?.id,
   });
@@ -37,7 +47,7 @@ const Admin = () => {
   }, [session, navigate]);
 
   useEffect(() => {
-    if (userProfile && userProfile.user_type !== 'admin') {
+    if (userProfile && (userProfile.email !== ADMIN_EMAIL || userProfile.user_type !== 'admin')) {
       navigate('/');
     }
   }, [userProfile, navigate]);
@@ -58,7 +68,7 @@ const Admin = () => {
     );
   }
 
-  if (userProfile?.user_type !== 'admin') {
+  if (userProfile?.email !== ADMIN_EMAIL || userProfile.user_type !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

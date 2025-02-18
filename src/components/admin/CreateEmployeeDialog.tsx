@@ -19,11 +19,13 @@ const CreateEmployeeDialog = () => {
 
   const createEmployee = useMutation({
     mutationFn: async (employeeData: typeof newEmployee) => {
+      // Force le type d'utilisateur à 'employee' pour éviter la création d'autres administrateurs
       const { data, error } = await supabase.rpc('create_employee_account', {
         email: employeeData.email,
         password: employeeData.password,
         username: employeeData.username,
         full_name: employeeData.fullName,
+        user_type: 'employee' // Forcer le type à employee
       });
 
       if (error) throw error;
