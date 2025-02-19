@@ -549,10 +549,10 @@ export type Database = {
     Functions: {
       create_employee_account: {
         Args: {
-          email: string
-          password: string
-          username: string
-          full_name: string
+          p_email: string
+          p_password: string
+          p_username: string
+          p_full_name: string
         }
         Returns: string
       }
