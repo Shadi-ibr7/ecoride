@@ -67,4 +67,9 @@
   .section {
     @apply py-16 px-4 md:py-24 md:px-6;
   }
+
+  /* Ajout de la nouvelle classe pour le padding sous la navbar */
+  .page-container {
+    @apply pt-20; /* 80px de padding-top pour compenser la navbar */
+  }
 }

@@ -7,7 +7,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center py-12 px-4">
+      <main className="page-container flex-1 flex items-center justify-center py-12 px-4">
         <AuthForm />
       </main>
       <Footer />

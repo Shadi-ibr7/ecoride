@@ -1,10 +1,9 @@
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
-import { toast } from "sonner";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 
 const Contact = () => {
-  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -59,8 +57,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
-      <main className="flex-grow container mx-auto px-4 py-24">
+      <main className="page-container flex-grow container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <h1 className="font-playfair text-3xl md:text-4xl text-[#1B4332] mb-8 text-center">
             Contactez-nous
@@ -138,7 +135,6 @@ const Contact = () => {
           </form>
         </div>
       </main>
-
       <Footer />
     </div>
   );
