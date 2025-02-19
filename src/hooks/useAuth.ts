@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -20,19 +19,28 @@ export const useAuth = () => {
 
   const signIn = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Vérifier d'abord que l'utilisateur existe
+      const { data: userExists, error: userCheckError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
 
-      const { data: user } = await supabase.auth.getUser();
-      if (!user?.user?.id) throw new Error("Impossible de récupérer l'utilisateur");
+      if (userCheckError) {
+        if (userCheckError.message === "Invalid login credentials") {
+          throw new Error("Email ou mot de passe incorrect");
+        }
+        throw userCheckError;
+      }
 
-      let { data: profile, error: profileError } = await supabase
+      if (!userExists?.user?.id) {
+        throw new Error("Impossible de récupérer l'utilisateur");
+      }
+
+      // Récupérer le profil de l'utilisateur
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
-        .eq('id', user.user.id)
+        .eq('id', userExists.user.id)
         .maybeSingle();
 
       if (profileError) throw profileError;
@@ -43,7 +51,7 @@ export const useAuth = () => {
           .from('profiles')
           .insert([
             {
-              id: user.user.id,
+              id: userExists.user.id,
               user_type: 'admin',
               username: 'admin',
               full_name: 'Administrateur'
@@ -75,6 +83,7 @@ export const useAuth = () => {
       toast.error("Erreur lors de la connexion", {
         description: error.message
       });
+      console.error('Erreur de connexion:', error);
     },
   });
 
