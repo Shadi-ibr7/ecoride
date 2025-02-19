@@ -33,7 +33,16 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <Toaster position="top-center" />
+        <Toaster 
+          position="top-center" 
+          toastOptions={{
+            style: {
+              maxWidth: '380px',
+              fontSize: '0.875rem'
+            }
+          }}
+          closeButton
+        />
       </Router>
     </QueryClientProvider>
   );
