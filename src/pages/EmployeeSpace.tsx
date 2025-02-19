@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { toast } from "sonner";
 import Navbar from '@/components/Navbar';
 import {
   Tabs,
@@ -17,6 +18,15 @@ import ProblematicRides from '@/components/employee/ProblematicRides';
 const EmployeeSpace = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+
+  // Vérifier que l'utilisateur est connecté
+  useEffect(() => {
+    if (!session) {
+      toast.error("Vous devez être connecté pour accéder à cette page");
+      navigate('/login');
+      return;
+    }
+  }, [session, navigate]);
 
   // Vérifier que l'utilisateur est bien un employé
   const { data: userProfile, isLoading: isLoadingProfile } = useQuery({
@@ -33,13 +43,6 @@ const EmployeeSpace = () => {
     },
     enabled: !!session?.user?.id,
   });
-
-  // Rediriger si l'utilisateur n'est pas un employé
-  useEffect(() => {
-    if (userProfile && userProfile.user_type !== 'employee') {
-      navigate('/');
-    }
-  }, [userProfile, navigate]);
 
   // Récupérer les avis en attente de validation
   const { data: pendingReviews, isLoading: isLoadingReviews } = useQuery({
@@ -121,11 +124,13 @@ const EmployeeSpace = () => {
     enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
   });
 
-  if (isLoadingProfile) {
-    return <div>Chargement...</div>;
+  if (isLoadingProfile || !session) {
+    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
   }
 
-  if (!session || userProfile?.user_type !== 'employee') {
+  if (userProfile?.user_type !== 'employee') {
+    toast.error("Accès non autorisé");
+    navigate('/');
     return null;
   }
 
