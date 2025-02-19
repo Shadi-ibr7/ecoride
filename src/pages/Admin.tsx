@@ -19,6 +19,7 @@ const Admin = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('30');
 
   const createAdminAccount = useMutation({
     mutationFn: async () => {
@@ -162,8 +163,8 @@ const Admin = () => {
         <h1 className="text-2xl font-bold mb-6">Espace Administrateur</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <RidesChart />
-          <EarningsChart />
+          <RidesChart period={selectedPeriod} />
+          <EarningsChart period={selectedPeriod} />
         </div>
 
         <div className="grid grid-cols-1 gap-6">

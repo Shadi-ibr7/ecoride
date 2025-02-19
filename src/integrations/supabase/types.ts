@@ -556,6 +556,12 @@ export type Database = {
         }
         Returns: string
       }
+      get_admin_stats: {
+        Args: {
+          days_period: number
+        }
+        Returns: Json
+      }
       set_admin_user_type: {
         Args: {
           user_id: string
