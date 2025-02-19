@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/tabs";
 import PendingReviews from '@/components/employee/PendingReviews';
 import ProblematicRides from '@/components/employee/ProblematicRides';
-import ContactMessages from '@/components/employee/ContactMessages';
 
 const EmployeeSpace = () => {
   const { session } = useAuth();
@@ -122,21 +121,6 @@ const EmployeeSpace = () => {
     enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
   });
 
-  // Récupérer les messages de contact
-  const { data: contactMessages, isLoading: isLoadingMessages } = useQuery({
-    queryKey: ['contact-messages'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('contact_messages')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
-  });
-
   if (isLoadingProfile) {
     return <div>Chargement...</div>;
   }
@@ -151,13 +135,10 @@ const EmployeeSpace = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Espace Employé</h1>
 
-        <Tabs defaultValue="reviews" className="space
-
--y-4">
+        <Tabs defaultValue="reviews" className="space-y-4">
           <TabsList>
             <TabsTrigger value="reviews">Avis en attente</TabsTrigger>
             <TabsTrigger value="problems">Trajets problématiques</TabsTrigger>
-            <TabsTrigger value="messages">Messages de contact</TabsTrigger>
           </TabsList>
 
           <TabsContent value="reviews">
@@ -171,14 +152,6 @@ const EmployeeSpace = () => {
             <ProblematicRides 
               rides={problematicRides || []}
               isLoading={isLoadingProblematic}
-            />
-          </TabsContent>
-
-          <TabsContent value="messages">
-            <ContactMessages 
-              messages={contactMessages || []}
-              isLoading={isLoadingMessages}
-              session={session}
             />
           </TabsContent>
         </Tabs>
