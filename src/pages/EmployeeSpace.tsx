@@ -1,9 +1,9 @@
+
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import {
   Tabs,
@@ -11,23 +11,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import PendingReviews from '@/components/employee/PendingReviews';
+import ProblematicRides from '@/components/employee/ProblematicRides';
+import ContactMessages from '@/components/employee/ContactMessages';
 
 const EmployeeSpace = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   // Vérifier que l'utilisateur est bien un employé
   const { data: userProfile, isLoading: isLoadingProfile } = useQuery({
@@ -147,51 +137,6 @@ const EmployeeSpace = () => {
     enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
   });
 
-  // Mutation pour valider ou refuser un avis
-  const updateReviewStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: 'approved' | 'rejected' }) => {
-      const { error } = await supabase
-        .from('ride_validations')
-        .update({ validation_status: status })
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pending-reviews'] });
-      toast.success('Statut de l\'avis mis à jour avec succès');
-    },
-    onError: (error: Error) => {
-      toast.error('Erreur lors de la mise à jour du statut', {
-        description: error.message
-      });
-    },
-  });
-
-  // Mutation pour mettre à jour le statut d'un message
-  const updateMessageStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase
-        .from('contact_messages')
-        .update({ 
-          status,
-          processed_by: session?.user?.id
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contact-messages'] });
-      toast.success('Statut du message mis à jour avec succès');
-    },
-    onError: (error: Error) => {
-      toast.error('Erreur lors de la mise à jour du statut', {
-        description: error.message
-      });
-    },
-  });
-
   if (isLoadingProfile) {
     return <div>Chargement...</div>;
   }
@@ -206,7 +151,9 @@ const EmployeeSpace = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Espace Employé</h1>
 
-        <Tabs defaultValue="reviews" className="space-y-4">
+        <Tabs defaultValue="reviews" className="space
+
+-y-4">
           <TabsList>
             <TabsTrigger value="reviews">Avis en attente</TabsTrigger>
             <TabsTrigger value="problems">Trajets problématiques</TabsTrigger>
@@ -214,228 +161,25 @@ const EmployeeSpace = () => {
           </TabsList>
 
           <TabsContent value="reviews">
-            <Card>
-              <CardHeader>
-                <CardTitle>Avis en attente de validation</CardTitle>
-                <CardDescription>
-                  Validez ou refusez les avis des utilisateurs avant leur publication
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {isLoadingReviews ? (
-                    <p>Chargement des avis...</p>
-                  ) : pendingReviews?.length === 0 ? (
-                    <p className="text-gray-500">Aucun avis en attente de validation</p>
-                  ) : (
-                    pendingReviews?.map((review) => (
-                      <Card key={review.id} className="p-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-semibold">
-                                De {review.booking.passenger.username}
-                              </h3>
-                              <p className="text-sm text-gray-500">
-                                Pour le trajet {review.booking.ride.departure_address} → {review.booking.ride.arrival_address}
-                              </p>
-                              <p className="text-sm">
-                                Le {format(new Date(review.booking.ride.departure_time), 'PPP', { locale: fr })}
-                              </p>
-                              {review.rating && (
-                                <p className="text-sm">Note : {review.rating}/5</p>
-                              )}
-                              {review.comment && (
-                                <p className="mt-2 text-gray-700">{review.comment}</p>
-                              )}
-                            </div>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => updateReviewStatus.mutate({ id: review.id, status: 'approved' })}
-                                disabled={updateReviewStatus.isPending}
-                              >
-                                <CheckCircle2 className="w-4 h-4 mr-2" />
-                                Valider
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => updateReviewStatus.mutate({ id: review.id, status: 'rejected' })}
-                                disabled={updateReviewStatus.isPending}
-                              >
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Refuser
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <PendingReviews 
+              reviews={pendingReviews || []}
+              isLoading={isLoadingReviews}
+            />
           </TabsContent>
 
           <TabsContent value="problems">
-            <Card>
-              <CardHeader>
-                <CardTitle>Trajets problématiques</CardTitle>
-                <CardDescription>
-                  Liste des trajets signalés comme problématiques par les utilisateurs
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {isLoadingProblematic ? (
-                    <p>Chargement des trajets problématiques...</p>
-                  ) : problematicRides?.length === 0 ? (
-                    <p className="text-gray-500">Aucun trajet problématique signalé</p>
-                  ) : (
-                    problematicRides?.map((issue) => (
-                      <Card key={issue.id} className="p-4">
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <Badge variant="destructive" className="mb-2">
-                                <AlertTriangle className="w-4 h-4 mr-2" />
-                                Problème signalé
-                              </Badge>
-                              <h3 className="font-semibold">
-                                Trajet #{issue.booking.ride.id}
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                {issue.booking.ride.departure_address} → {issue.booking.ride.arrival_address}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                Le {format(new Date(issue.booking.ride.departure_time), 'PPP', { locale: fr })}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="font-medium mb-2">Conducteur</h4>
-                              <p className="text-sm">
-                                Pseudo : {issue.booking.ride.driver.username}
-                              </p>
-                              <p className="text-sm">
-                                Email : {issue.booking.ride.driver.auth_users?.[0]?.email}
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-medium mb-2">Passager</h4>
-                              <p className="text-sm">
-                                Pseudo : {issue.booking.passenger.username}
-                              </p>
-                              <p className="text-sm">
-                                Email : {issue.booking.passenger.auth_users?.[0]?.email}
-                              </p>
-                            </div>
-                          </div>
-
-                          {issue.comment && (
-                            <div>
-                              <h4 className="font-medium mb-2">Description du problème</h4>
-                              <p className="text-sm text-gray-700">{issue.comment}</p>
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <ProblematicRides 
+              rides={problematicRides || []}
+              isLoading={isLoadingProblematic}
+            />
           </TabsContent>
 
           <TabsContent value="messages">
-            <Card>
-              <CardHeader>
-                <CardTitle>Messages de contact</CardTitle>
-                <CardDescription>
-                  Messages reçus via le formulaire de contact
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {isLoadingMessages ? (
-                    <p>Chargement des messages...</p>
-                  ) : contactMessages?.length === 0 ? (
-                    <p className="text-gray-500">Aucun message reçu</p>
-                  ) : (
-                    contactMessages?.map((message) => (
-                      <Card key={message.id} className="p-4">
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-semibold">
-                                {message.first_name} {message.last_name}
-                              </h3>
-                              <p className="text-sm text-gray-600">{message.email}</p>
-                              <p className="text-sm text-gray-600">
-                                {format(new Date(message.created_at), 'PPP', { locale: fr })}
-                              </p>
-                            </div>
-                            <Badge 
-                              variant={
-                                message.status === 'processed' 
-                                  ? 'default' 
-                                  : message.status === 'archived' 
-                                  ? 'secondary' 
-                                  : 'destructive'
-                              }
-                            >
-                              {message.status === 'processed' 
-                                ? 'Traité' 
-                                : message.status === 'archived' 
-                                ? 'Archivé' 
-                                : 'En attente'}
-                            </Badge>
-                          </div>
-
-                          <div>
-                            <h4 className="font-medium mb-2">Objet</h4>
-                            <p className="text-gray-700">{message.subject}</p>
-                          </div>
-
-                          <div>
-                            <h4 className="font-medium mb-2">Message</h4>
-                            <p className="text-gray-700 whitespace-pre-wrap">{message.message}</p>
-                          </div>
-
-                          {message.status === 'pending' && (
-                            <div className="flex space-x-2">
-                              <Button
-                                size="sm"
-                                onClick={() => updateMessageStatus.mutate({ 
-                                  id: message.id, 
-                                  status: 'processed' 
-                                })}
-                              >
-                                Marquer comme traité
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => updateMessageStatus.mutate({ 
-                                  id: message.id, 
-                                  status: 'archived' 
-                                })}
-                              >
-                                Archiver
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <ContactMessages 
+              messages={contactMessages || []}
+              isLoading={isLoadingMessages}
+              session={session}
+            />
           </TabsContent>
         </Tabs>
       </div>
