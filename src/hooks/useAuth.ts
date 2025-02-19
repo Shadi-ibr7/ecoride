@@ -14,12 +14,15 @@ export const useAuth = () => {
     queryKey: ['session'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', session); // Ajout de log pour déboguer
       return session;
     },
   });
 
   const signIn = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      console.log('Tentative de connexion avec:', email); // Ajout de log pour déboguer
+      
       // Vérifier d'abord que l'utilisateur existe
       const { data: userExists, error: userCheckError } = await supabase.auth.signInWithPassword({
         email,
@@ -27,6 +30,7 @@ export const useAuth = () => {
       });
 
       if (userCheckError) {
+        console.error('Erreur lors de la connexion:', userCheckError); // Ajout de log pour déboguer
         if (userCheckError.message === "Invalid login credentials") {
           throw new Error("Email ou mot de passe incorrect");
         }
@@ -45,6 +49,8 @@ export const useAuth = () => {
         .select('user_type')
         .eq('id', userExists.user.id)
         .maybeSingle();
+
+      console.log('Profil existant:', existingProfile); // Ajout de log pour déboguer
 
       if (profileError) throw profileError;
 
@@ -80,6 +86,8 @@ export const useAuth = () => {
       // Rediriger vers /admin si c'est l'admin, sinon vers la page d'accueil
       if (email === ADMIN_EMAIL && profile?.user_type === 'admin') {
         navigate('/admin');
+      } else if (profile?.user_type === 'employee') {
+        navigate('/employee');
       } else {
         navigate('/');
       }
