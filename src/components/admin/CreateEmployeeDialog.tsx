@@ -61,7 +61,7 @@ const CreateEmployeeDialog = () => {
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="fixed top-1/2 left-2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg\n">
+      <DialogContent className="fixed top-1 left-2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg\\n mx-[190px] my-0 py-[30px] rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-xl">Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>
