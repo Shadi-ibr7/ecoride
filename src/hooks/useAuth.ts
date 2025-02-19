@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -37,7 +38,9 @@ export const useAuth = () => {
       }
 
       // Récupérer le profil de l'utilisateur
-      const { data: profile, error: profileError } = await supabase
+      let userProfile;
+      
+      const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
         .eq('id', userExists.user.id)
@@ -46,7 +49,7 @@ export const useAuth = () => {
       if (profileError) throw profileError;
 
       // Si c'est l'admin et qu'il n'a pas de profil, on le crée
-      if (!profile && email === ADMIN_EMAIL) {
+      if (!existingProfile && email === ADMIN_EMAIL) {
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
           .insert([
@@ -61,12 +64,14 @@ export const useAuth = () => {
           .single();
 
         if (insertError) throw insertError;
-        profile = newProfile;
-      } else if (!profile) {
+        userProfile = newProfile;
+      } else if (!existingProfile) {
         throw new Error("Profil utilisateur non trouvé");
+      } else {
+        userProfile = existingProfile;
       }
 
-      return { profile, email };
+      return { profile: userProfile, email };
     },
     onSuccess: ({ profile, email }) => {
       queryClient.invalidateQueries({ queryKey: ['session'] });
