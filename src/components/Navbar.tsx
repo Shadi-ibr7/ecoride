@@ -1,8 +1,33 @@
 
 import { Link } from 'react-router-dom';
-import { Car, Mail, User } from 'lucide-react';
+import { Car, Mail, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
+  const { session, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    signOut.mutate();
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return 'U';
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,13 +53,37 @@ const Navbar = () => {
               <Mail className="w-5 h-5" />
               <span>Contact</span>
             </Link>
-            <Link 
-              to="/login" 
-              className="text-gray-700 hover:text-primary-600 flex items-center space-x-2"
-            >
-              <User className="w-5 h-5" />
-              <span>Connexion</span>
-            </Link>
+
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary-100 text-primary-600">
+                        {getInitials(session.user?.email)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuItem className="font-medium text-sm">
+                    {session.user?.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Déconnexion</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link 
+                to="/login" 
+                className="text-gray-700 hover:text-primary-600 flex items-center space-x-2"
+              >
+                <User className="w-5 h-5" />
+                <span>Connexion</span>
+              </Link>
+            )}
           </div>
         </div>
       </div>
