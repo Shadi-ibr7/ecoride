@@ -58,14 +58,14 @@ export const useAuth = () => {
         throw new Error("Profil utilisateur non trouvé");
       }
 
-      return profile;
+      return { profile, email };
     },
-    onSuccess: (profile) => {
+    onSuccess: ({ profile, email }) => {
       queryClient.invalidateQueries({ queryKey: ['session'] });
       toast.success("Connexion réussie");
       
       // Rediriger vers /admin si c'est l'admin, sinon vers la page d'accueil
-      if (profile?.user_type === 'admin') {
+      if (email === ADMIN_EMAIL && profile?.user_type === 'admin') {
         navigate('/admin');
       } else {
         navigate('/');
