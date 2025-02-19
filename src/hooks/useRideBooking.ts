@@ -19,11 +19,22 @@ export const useRideBooking = () => {
         .from('user_credits')
         .select('credits')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
       if (creditsError) throw creditsError;
-      if (!userCredits || userCredits.credits < price) {
-        throw new Error(`Crédit insuffisant. Vous avez ${userCredits?.credits || 0} crédits, le trajet en coûte ${price}.`);
+
+      // Si aucun enregistrement de crédit n'existe, on en crée un avec 0 crédits
+      if (!userCredits) {
+        const { error: insertError } = await supabase
+          .from('user_credits')
+          .insert([{ user_id: session.user.id, credits: 0 }]);
+        
+        if (insertError) throw insertError;
+        throw new Error('Crédit insuffisant. Vous avez 0 crédits, le trajet en coûte ' + price);
+      }
+
+      if (userCredits.credits < price) {
+        throw new Error(`Crédit insuffisant. Vous avez ${userCredits.credits} crédits, le trajet en coûte ${price}.`);
       }
 
       // 2. Créer la réservation et mettre à jour les crédits
