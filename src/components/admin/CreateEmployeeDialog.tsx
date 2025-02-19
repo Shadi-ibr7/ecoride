@@ -11,6 +11,7 @@ import { UserPlus } from 'lucide-react';
 
 const CreateEmployeeDialog = () => {
   const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
   const [newEmployee, setNewEmployee] = useState({
     email: '',
     password: '',
@@ -35,6 +36,7 @@ const CreateEmployeeDialog = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Compte employé créé avec succès');
       setNewEmployee({ email: '', password: '', username: '', fullName: '' });
+      setOpen(false);
     },
     onError: (error: Error) => {
       toast.error('Erreur lors de la création du compte', {
@@ -43,78 +45,82 @@ const CreateEmployeeDialog = () => {
     },
   });
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createEmployee.mutate(newEmployee);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <UserPlus className="h-4 w-4" />
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
+      <DialogContent className="max-w-xl fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%]">
         <DialogHeader>
           <DialogTitle className="text-xl">Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>
             Remplissez les informations pour créer un compte employé
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-6 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@exemple.com"
-                value={newEmployee.email}
-                onChange={(e) => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={newEmployee.password}
-                onChange={(e) => setNewEmployee(prev => ({ ...prev, password: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="username">Pseudo</Label>
-              <Input
-                id="username"
-                placeholder="pseudo"
-                value={newEmployee.username}
-                onChange={(e) => setNewEmployee(prev => ({ ...prev, username: e.target.value }))}
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Nom complet</Label>
-              <Input
-                id="fullName"
-                placeholder="Nom et prénom"
-                value={newEmployee.fullName}
-                onChange={(e) => setNewEmployee(prev => ({ ...prev, fullName: e.target.value }))}
-                className="w-full"
-              />
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@exemple.com"
+                  value={newEmployee.email}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={newEmployee.password}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, password: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">Pseudo</Label>
+                <Input
+                  id="username"
+                  placeholder="pseudo"
+                  value={newEmployee.username}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, username: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Nom complet</Label>
+                <Input
+                  id="fullName"
+                  placeholder="Nom et prénom"
+                  value={newEmployee.fullName}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, fullName: e.target.value }))}
+                  required
+                />
+              </div>
             </div>
           </div>
-        </div>
-        <DialogFooter className="flex justify-end gap-2 sm:justify-end">
-          <DialogTrigger asChild>
-            <Button variant="outline">Annuler</Button>
-          </DialogTrigger>
-          <Button 
-            onClick={() => createEmployee.mutate(newEmployee)} 
-            disabled={createEmployee.isPending}
-          >
-            {createEmployee.isPending ? 'Création...' : 'Créer le compte'}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+              Annuler
+            </Button>
+            <Button type="submit" disabled={createEmployee.isPending}>
+              {createEmployee.isPending ? 'Création...' : 'Créer le compte'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
