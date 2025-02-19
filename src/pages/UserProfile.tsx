@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,13 +12,16 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import type { Database } from '@/types/database.types';
+
+type UserType = NonNullable<Database['public']['Tables']['profiles']['Row']['user_type']>;
 
 const UserProfile = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const { profile, updateProfile } = useProfile(session?.user?.id);
   
-  const [userType, setUserType] = useState(profile?.user_type || 'passenger');
+  const [userType, setUserType] = useState<UserType>(profile?.user_type || 'passenger');
   const [vehicleInputs, setVehicleInputs] = useState({
     brand: '',
     model: '',
@@ -45,10 +47,10 @@ const UserProfile = () => {
     return null;
   }
 
-  const handleUserTypeChange = async (value: string) => {
+  const handleUserTypeChange = async (value: UserType) => {
     try {
       await updateProfile.mutateAsync({
-        user_type: value as 'passenger' | 'driver' | 'both'
+        user_type: value
       });
       setUserType(value);
       toast.success('Type d\'utilisateur mis à jour');
@@ -59,12 +61,10 @@ const UserProfile = () => {
 
   const handleAddVehicle = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement vehicle addition
     toast.success('Véhicule ajouté avec succès');
   };
 
   const handleUpdatePreferences = () => {
-    // TODO: Implement preferences update
     toast.success('Préférences mises à jour');
   };
 

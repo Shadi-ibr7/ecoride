@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -19,6 +18,7 @@ export interface Database {
           avatar_url: string
           rating: number
           preferences: string[]
+          user_type: 'passenger' | 'driver' | 'both' | 'admin' | null
         }
         Insert: {
           id: string
@@ -28,6 +28,7 @@ export interface Database {
           avatar_url?: string
           rating?: number
           preferences?: string[]
+          user_type?: 'passenger' | 'driver' | 'both' | 'admin'
         }
         Update: {
           id?: string
@@ -37,6 +38,7 @@ export interface Database {
           avatar_url?: string
           rating?: number
           preferences?: string[]
+          user_type?: 'passenger' | 'driver' | 'both' | 'admin'
         }
       }
       rides: {
