@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Car, Mail, User, LogOut } from 'lucide-react';
+import { Car, Mail, User, LogOut, UserCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
   DropdownMenu,
@@ -69,6 +69,12 @@ const Navbar = () => {
                   <DropdownMenuItem className="font-medium text-sm">
                     {session.user?.email}
                   </DropdownMenuItem>
+                  <Link to="/profile">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      <span>Mon Profil</span>
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Déconnexion</span>

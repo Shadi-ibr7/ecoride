@@ -11,6 +11,7 @@ import Admin from '@/pages/Admin';
 import AdminDashboard from '@/pages/AdminDashboard';
 import EmployeeSpace from '@/pages/EmployeeSpace';
 import Contact from '@/pages/Contact';
+import UserProfile from '@/pages/UserProfile';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "sonner";
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/admin/users" element={<Admin />} />
           <Route path="/admin/employee" element={<EmployeeSpace />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/profile" element={<UserProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster 
