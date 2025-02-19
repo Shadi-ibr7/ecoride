@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { UserPlus } from 'lucide-react';
 
 const CreateEmployeeDialog = () => {
   const queryClient = useQueryClient();
@@ -19,13 +20,12 @@ const CreateEmployeeDialog = () => {
 
   const createEmployee = useMutation({
     mutationFn: async (employeeData: typeof newEmployee) => {
-      // Force le type d'utilisateur à 'employee' pour éviter la création d'autres administrateurs
       const { data, error } = await supabase.rpc('create_employee_account', {
         email: employeeData.email,
         password: employeeData.password,
         username: employeeData.username,
         full_name: employeeData.fullName,
-        user_type: 'employee' // Forcer le type à employee
+        user_type: 'employee'
       });
 
       if (error) throw error;
@@ -46,52 +46,68 @@ const CreateEmployeeDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Créer un compte employé</Button>
+        <Button className="flex items-center gap-2">
+          <UserPlus className="h-4 w-4" />
+          Créer un compte employé
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md md:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Créer un nouveau compte employé</DialogTitle>
+          <DialogTitle className="text-xl">Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>
             Remplissez les informations pour créer un compte employé
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={newEmployee.email}
-              onChange={(e) => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
-              type="password"
-              value={newEmployee.password}
-              onChange={(e) => setNewEmployee(prev => ({ ...prev, password: e.target.value }))}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="username">Pseudo</Label>
-            <Input
-              id="username"
-              value={newEmployee.username}
-              onChange={(e) => setNewEmployee(prev => ({ ...prev, username: e.target.value }))}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="fullName">Nom complet</Label>
-            <Input
-              id="fullName"
-              value={newEmployee.fullName}
-              onChange={(e) => setNewEmployee(prev => ({ ...prev, fullName: e.target.value }))}
-            />
+        <div className="grid gap-6 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="email@exemple.com"
+                value={newEmployee.email}
+                onChange={(e) => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={newEmployee.password}
+                onChange={(e) => setNewEmployee(prev => ({ ...prev, password: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="username">Pseudo</Label>
+              <Input
+                id="username"
+                placeholder="pseudo"
+                value={newEmployee.username}
+                onChange={(e) => setNewEmployee(prev => ({ ...prev, username: e.target.value }))}
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Nom complet</Label>
+              <Input
+                id="fullName"
+                placeholder="Nom et prénom"
+                value={newEmployee.fullName}
+                onChange={(e) => setNewEmployee(prev => ({ ...prev, fullName: e.target.value }))}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex justify-end gap-2 sm:justify-end">
+          <DialogTrigger asChild>
+            <Button variant="outline">Annuler</Button>
+          </DialogTrigger>
           <Button 
             onClick={() => createEmployee.mutate(newEmployee)} 
             disabled={createEmployee.isPending}
