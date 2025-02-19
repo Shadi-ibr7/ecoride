@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -133,6 +132,21 @@ const EmployeeSpace = () => {
     enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
   });
 
+  // Récupérer les messages de contact
+  const { data: contactMessages, isLoading: isLoadingMessages } = useQuery({
+    queryKey: ['contact-messages'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
+  });
+
   // Mutation pour valider ou refuser un avis
   const updateReviewStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: 'approved' | 'rejected' }) => {
@@ -146,6 +160,30 @@ const EmployeeSpace = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-reviews'] });
       toast.success('Statut de l\'avis mis à jour avec succès');
+    },
+    onError: (error: Error) => {
+      toast.error('Erreur lors de la mise à jour du statut', {
+        description: error.message
+      });
+    },
+  });
+
+  // Mutation pour mettre à jour le statut d'un message
+  const updateMessageStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase
+        .from('contact_messages')
+        .update({ 
+          status,
+          processed_by: session?.user?.id
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contact-messages'] });
+      toast.success('Statut du message mis à jour avec succès');
     },
     onError: (error: Error) => {
       toast.error('Erreur lors de la mise à jour du statut', {
@@ -172,6 +210,7 @@ const EmployeeSpace = () => {
           <TabsList>
             <TabsTrigger value="reviews">Avis en attente</TabsTrigger>
             <TabsTrigger value="problems">Trajets problématiques</TabsTrigger>
+            <TabsTrigger value="messages">Messages de contact</TabsTrigger>
           </TabsList>
 
           <TabsContent value="reviews">
@@ -301,6 +340,93 @@ const EmployeeSpace = () => {
                             <div>
                               <h4 className="font-medium mb-2">Description du problème</h4>
                               <p className="text-sm text-gray-700">{issue.comment}</p>
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <Card>
+              <CardHeader>
+                <CardTitle>Messages de contact</CardTitle>
+                <CardDescription>
+                  Messages reçus via le formulaire de contact
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {isLoadingMessages ? (
+                    <p>Chargement des messages...</p>
+                  ) : contactMessages?.length === 0 ? (
+                    <p className="text-gray-500">Aucun message reçu</p>
+                  ) : (
+                    contactMessages?.map((message) => (
+                      <Card key={message.id} className="p-4">
+                        <div className="space-y-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="font-semibold">
+                                {message.first_name} {message.last_name}
+                              </h3>
+                              <p className="text-sm text-gray-600">{message.email}</p>
+                              <p className="text-sm text-gray-600">
+                                {format(new Date(message.created_at), 'PPP', { locale: fr })}
+                              </p>
+                            </div>
+                            <Badge 
+                              variant={
+                                message.status === 'processed' 
+                                  ? 'default' 
+                                  : message.status === 'archived' 
+                                  ? 'secondary' 
+                                  : 'destructive'
+                              }
+                            >
+                              {message.status === 'processed' 
+                                ? 'Traité' 
+                                : message.status === 'archived' 
+                                ? 'Archivé' 
+                                : 'En attente'}
+                            </Badge>
+                          </div>
+
+                          <div>
+                            <h4 className="font-medium mb-2">Objet</h4>
+                            <p className="text-gray-700">{message.subject}</p>
+                          </div>
+
+                          <div>
+                            <h4 className="font-medium mb-2">Message</h4>
+                            <p className="text-gray-700 whitespace-pre-wrap">{message.message}</p>
+                          </div>
+
+                          {message.status === 'pending' && (
+                            <div className="flex space-x-2">
+                              <Button
+                                size="sm"
+                                onClick={() => updateMessageStatus.mutate({ 
+                                  id: message.id, 
+                                  status: 'processed' 
+                                })}
+                              >
+                                Marquer comme traité
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => updateMessageStatus.mutate({ 
+                                  id: message.id, 
+                                  status: 'archived' 
+                                })}
+                              >
+                                Archiver
+                              </Button>
                             </div>
                           )}
                         </div>
