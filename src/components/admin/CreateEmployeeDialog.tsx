@@ -51,14 +51,14 @@ const CreateEmployeeDialog = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog modal open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <UserPlus className="h-4 w-4" />
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl">Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>
