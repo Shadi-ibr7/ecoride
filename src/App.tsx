@@ -1,53 +1,24 @@
-
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Index from '@/pages/Index';
-import Rides from '@/pages/Rides';
-import RideDetails from '@/pages/RideDetails';
-import CreateRide from '@/pages/CreateRide';
-import RideHistory from '@/pages/RideHistory';
-import NotFound from '@/pages/NotFound';
-import Auth from '@/pages/Auth';
+import { Routes, Route } from 'react-router-dom';
+import Home from '@/pages/Home';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
 import Admin from '@/pages/Admin';
 import AdminDashboard from '@/pages/AdminDashboard';
 import EmployeeSpace from '@/pages/EmployeeSpace';
-import Contact from '@/pages/Contact';
-import UserProfile from '@/pages/UserProfile';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from "sonner";
+import { Toaster } from "sonner"
 
-const queryClient = new QueryClient();
-
-function App() {
+export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/rides" element={<Rides />} />
-          <Route path="/rides/:id" element={<RideDetails />} />
-          <Route path="/rides/create" element={<CreateRide />} />
-          <Route path="/rides/history" element={<RideHistory />} />
-          <Route path="/login" element={<Auth />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<Admin />} />
-          <Route path="/admin/employee" element={<EmployeeSpace />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Toaster 
-          position="top-center" 
-          toastOptions={{
-            style: {
-              maxWidth: '380px',
-              fontSize: '0.875rem'
-            }
-          }}
-          closeButton
-        />
-      </Router>
-    </QueryClientProvider>
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/employee" element={<EmployeeSpace />} /> {/* Ajout de la route employé */}
+      </Routes>
+      <Toaster />
+    </>
   );
 }
-
-export default App;
