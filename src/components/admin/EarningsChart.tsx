@@ -3,16 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-const EarningsChart = () => {
+interface EarningsChartProps {
+  period: string;
+}
+
+const EarningsChart = ({ period }: EarningsChartProps) => {
   const { data: earningsStats, isLoading } = useQuery({
-    queryKey: ['earnings-stats'],
+    queryKey: ['earnings-stats', period],
     queryFn: async () => {
       const { data: earnings, error } = await supabase
         .from('platform_earnings')
         .select('*')
+        .gte('created_at', new Date(Date.now() - parseInt(period) * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -34,32 +38,24 @@ const EarningsChart = () => {
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Gains de la plateforme</CardTitle>
-        <CardDescription>
-          Total des gains : {earningsStats?.total || 0} crédits
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="h-[300px]">
-        {isLoading ? (
-          <div className="h-full flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={earningsStats?.byDate}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="amount" name="Crédits gagnés" fill="#22c55e" />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </CardContent>
-    </Card>
+    <div className="h-[300px]">
+      {isLoading ? (
+        <div className="h-full flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={earningsStats?.byDate}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="amount" name="Crédits gagnés" fill="#22c55e" />
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </div>
   );
 };
 
