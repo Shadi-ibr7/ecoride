@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from 'lucide-react';
+
 const CreateEmployeeDialog = () => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -16,32 +18,23 @@ const CreateEmployeeDialog = () => {
     username: '',
     fullName: ''
   });
+
   const createEmployee = useMutation({
     mutationFn: async (employeeData: typeof newEmployee) => {
-      const {
-        data,
-        error
-      } = await supabase.rpc('create_employee_account', {
+      const { data, error } = await supabase.rpc('create_employee_account', {
         email: employeeData.email,
         password: employeeData.password,
         username: employeeData.username,
-        full_name: employeeData.fullName,
-        user_type: 'employee'
+        full_name: employeeData.fullName
       });
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['users']
-      });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Compte employé créé avec succès');
-      setNewEmployee({
-        email: '',
-        password: '',
-        username: '',
-        fullName: ''
-      });
+      setNewEmployee({ email: '', password: '', username: '', fullName: '' });
       setOpen(false);
     },
     onError: (error: Error) => {
@@ -50,18 +43,21 @@ const CreateEmployeeDialog = () => {
       });
     }
   });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createEmployee.mutate(newEmployee);
   };
-  return <Dialog modal open={open} onOpenChange={setOpen}>
+
+  return (
+    <Dialog modal open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <UserPlus className="h-4 w-4" />
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="fixed top-1 left-2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg\\n mx-[190px] my-0 py-[30px] rounded-lg">
+      <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg bg-white rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-xl">Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>
@@ -73,31 +69,57 @@ const CreateEmployeeDialog = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="email@exemple.com" value={newEmployee.email} onChange={e => setNewEmployee(prev => ({
-                ...prev,
-                email: e.target.value
-              }))} required />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@exemple.com"
+                  value={newEmployee.email}
+                  onChange={e => setNewEmployee(prev => ({
+                    ...prev,
+                    email: e.target.value
+                  }))}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Mot de passe</Label>
-                <Input id="password" type="password" placeholder="••••••••" value={newEmployee.password} onChange={e => setNewEmployee(prev => ({
-                ...prev,
-                password: e.target.value
-              }))} required />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={newEmployee.password}
+                  onChange={e => setNewEmployee(prev => ({
+                    ...prev,
+                    password: e.target.value
+                  }))}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="username">Pseudo</Label>
-                <Input id="username" placeholder="pseudo" value={newEmployee.username} onChange={e => setNewEmployee(prev => ({
-                ...prev,
-                username: e.target.value
-              }))} required />
+                <Input
+                  id="username"
+                  placeholder="pseudo"
+                  value={newEmployee.username}
+                  onChange={e => setNewEmployee(prev => ({
+                    ...prev,
+                    username: e.target.value
+                  }))}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fullName">Nom complet</Label>
-                <Input id="fullName" placeholder="Nom et prénom" value={newEmployee.fullName} onChange={e => setNewEmployee(prev => ({
-                ...prev,
-                fullName: e.target.value
-              }))} required />
+                <Input
+                  id="fullName"
+                  placeholder="Nom et prénom"
+                  value={newEmployee.fullName}
+                  onChange={e => setNewEmployee(prev => ({
+                    ...prev,
+                    fullName: e.target.value
+                  }))}
+                  required
+                />
               </div>
             </div>
           </div>
@@ -111,6 +133,8 @@ const CreateEmployeeDialog = () => {
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default CreateEmployeeDialog;
