@@ -163,10 +163,12 @@ const RideDetails = () => {
       <Footer />
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[400px] rounded-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer votre participation</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-lg font-semibold">
+              Confirmer votre participation
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               Vous êtes sur le point de réserver une place pour le trajet
               {' '}{ride.departureCity} → {ride.arrivalCity}{' '}
               pour {ride.price} crédits.
@@ -175,8 +177,8 @@ const RideDetails = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmParticipation}>
+            <AlertDialogCancel className="text-sm">Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmParticipation} className="text-sm">
               Confirmer
             </AlertDialogAction>
           </AlertDialogFooter>
