@@ -14,14 +14,14 @@ export const useAuth = () => {
     queryKey: ['session'],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session:', session); // Ajout de log pour déboguer
+      console.log('Current session:', session); // Debug log
       return session;
     },
   });
 
   const signIn = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      console.log('Tentative de connexion avec:', email); // Ajout de log pour déboguer
+      console.log('Tentative de connexion avec:', email); // Debug log
       
       // Vérifier d'abord que l'utilisateur existe
       const { data: userExists, error: userCheckError } = await supabase.auth.signInWithPassword({
@@ -30,7 +30,7 @@ export const useAuth = () => {
       });
 
       if (userCheckError) {
-        console.error('Erreur lors de la connexion:', userCheckError); // Ajout de log pour déboguer
+        console.error('Erreur lors de la connexion:', userCheckError); // Debug log
         if (userCheckError.message === "Invalid login credentials") {
           throw new Error("Email ou mot de passe incorrect");
         }
@@ -42,15 +42,13 @@ export const useAuth = () => {
       }
 
       // Récupérer le profil de l'utilisateur
-      let userProfile;
-      
       const { data: existingProfile, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
         .eq('id', userExists.user.id)
-        .maybeSingle();
+        .single();
 
-      console.log('Profil existant:', existingProfile); // Ajout de log pour déboguer
+      console.log('Profil existant:', existingProfile); // Debug log
 
       if (profileError) throw profileError;
 
@@ -70,21 +68,30 @@ export const useAuth = () => {
           .single();
 
         if (insertError) throw insertError;
-        userProfile = newProfile;
+        return { profile: newProfile, email };
       } else if (!existingProfile) {
         throw new Error("Profil utilisateur non trouvé");
-      } else {
-        userProfile = existingProfile;
       }
 
-      return { profile: userProfile, email };
+      // Mettre à jour le type d'utilisateur si c'est l'admin
+      if (email === ADMIN_EMAIL && existingProfile.user_type !== 'admin') {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ user_type: 'admin' })
+          .eq('id', userExists.user.id);
+
+        if (updateError) throw updateError;
+        return { profile: { user_type: 'admin' }, email };
+      }
+
+      return { profile: existingProfile, email };
     },
     onSuccess: ({ profile, email }) => {
       queryClient.invalidateQueries({ queryKey: ['session'] });
       toast.success("Connexion réussie");
       
-      // Rediriger vers /admin si c'est l'admin, sinon vers la page d'accueil
-      if (email === ADMIN_EMAIL && profile?.user_type === 'admin') {
+      // Rediriger vers la bonne page en fonction du type d'utilisateur
+      if (email === ADMIN_EMAIL || profile?.user_type === 'admin') {
         navigate('/admin');
       } else if (profile?.user_type === 'employee') {
         navigate('/employee');
@@ -131,7 +138,8 @@ export const useAuth = () => {
         throw new Error("Erreur lors de la création du compte");
       }
 
-      // Créer le profil manuellement car le trigger peut prendre du temps
+      // Créer le profil avec le type d'utilisateur approprié
+      const userType = email === ADMIN_EMAIL ? 'admin' : 'passenger';
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
@@ -139,7 +147,7 @@ export const useAuth = () => {
             id: data.user.id,
             username,
             full_name: fullName,
-            user_type: 'passenger'
+            user_type: userType
           }
         ]);
 

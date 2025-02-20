@@ -10,18 +10,25 @@ type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 export const useProfile = (userId?: string) => {
   const queryClient = useQueryClient();
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: ['profile', userId],
     queryFn: async () => {
       if (!userId) return null;
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, auth_users(email)')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        throw error;
+      }
+
+      // Log pour debug
+      console.log('Profile fetched:', data);
+      
       return data as Profile;
     },
     enabled: !!userId,
@@ -51,6 +58,7 @@ export const useProfile = (userId?: string) => {
 
   return {
     profile,
+    isLoading,
     updateProfile,
   };
 };
