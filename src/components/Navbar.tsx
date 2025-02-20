@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
-  const { session, signOut } = useAuth();
+  const { session } = useAuth();
 
   const handleSignOut = () => {
     signOut.mutate();
@@ -75,6 +75,22 @@ const Navbar = () => {
                       <span>Mon Profil</span>
                     </DropdownMenuItem>
                   </Link>
+                  {session && (
+                    <>
+                      <Link to="/admin">
+                        <DropdownMenuItem className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Administration</span>
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link to="/employee">
+                        <DropdownMenuItem className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Espace Employé</span>
+                        </DropdownMenuItem>
+                      </Link>
+                    </>
+                  )}
                   <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Déconnexion</span>
