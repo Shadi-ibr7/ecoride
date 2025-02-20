@@ -49,33 +49,33 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img 
-              src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=60" 
+              src="https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=800&auto=format&fit=crop&q=60" 
+              alt="Tesla Modèle S" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
+            <img 
+              src="https://images.unsplash.com/photo-1554744512-d6c603f27c54?w=800&auto=format&fit=crop&q=60" 
+              alt="Tesla Model X" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
+            <img 
+              src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=60" 
               alt="Tesla Model 3" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1615526675741-3ce9c4544ee5?w=800&auto=format&fit=crop&q=60" 
-              alt="Borne de recharge électrique" 
+              src="https://images.unsplash.com/photo-1616789916664-af15aa741d3f?w=800&auto=format&fit=crop&q=60" 
+              alt="Porsche Taycan" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1611634846460-c04213a1ceb9?w=800&auto=format&fit=crop&q=60" 
-              alt="Tableau de bord électrique" 
+              src="https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format&fit=crop&q=60" 
+              alt="BMW i8" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1657624983656-3c225f196179?w=800&auto=format&fit=crop&q=60" 
-              alt="Station de recharge moderne" 
-              className="rounded-lg w-full h-48 object-cover" 
-            />
-            <img 
-              src="https://images.unsplash.com/photo-1583531352515-8884af319dc1?w=800&auto=format&fit=crop&q=60" 
-              alt="Voiture électrique sportive" 
-              className="rounded-lg w-full h-48 object-cover" 
-            />
-            <img 
-              src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800&auto=format&fit=crop&q=60" 
-              alt="Détail voiture électrique" 
+              src="https://images.unsplash.com/photo-1607670653587-8caa6c6c4c71?w=800&auto=format&fit=crop&q=60" 
+              alt="Audi e-tron" 
               className="rounded-lg w-full h-48 object-cover" 
             />
           </div>
