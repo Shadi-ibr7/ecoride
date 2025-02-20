@@ -400,6 +400,9 @@ export type Database = {
           price: number
           status: string | null
           updated_at: string | null
+          vehicle_brand: string | null
+          vehicle_energy_type: string | null
+          vehicle_model: string | null
         }
         Insert: {
           arrival_address: string
@@ -414,6 +417,9 @@ export type Database = {
           price: number
           status?: string | null
           updated_at?: string | null
+          vehicle_brand?: string | null
+          vehicle_energy_type?: string | null
+          vehicle_model?: string | null
         }
         Update: {
           arrival_address?: string
@@ -428,6 +434,9 @@ export type Database = {
           price?: number
           status?: string | null
           updated_at?: string | null
+          vehicle_brand?: string | null
+          vehicle_energy_type?: string | null
+          vehicle_model?: string | null
         }
         Relationships: []
       }
