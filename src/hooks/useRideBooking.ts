@@ -9,7 +9,7 @@ export const useRideBooking = () => {
   const queryClient = useQueryClient();
 
   const bookRide = useMutation({
-    mutationFn: async ({ rideId, price }: { rideId: number; price: number }) => {
+    mutationFn: async ({ rideId, price }: { rideId: string; price: number }) => {
       if (!session?.user) {
         throw new Error('Vous devez être connecté pour réserver un trajet');
       }
