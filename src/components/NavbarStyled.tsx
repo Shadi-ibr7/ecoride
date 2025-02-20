@@ -2,10 +2,10 @@
 import { Link } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const NavbarStyled = () => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-b from-white to-primary-100 border-b border-primary-200">
