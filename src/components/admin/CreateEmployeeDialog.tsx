@@ -87,20 +87,20 @@ const CreateEmployeeDialog = () => {
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl w-[90%] h-auto rounded-xl p-6 md:p-8">
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="text-3xl font-playfair text-center">
+      <DialogContent className="max-w-2xl w-[90%] h-auto rounded-xl p-4 md:p-6">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-2xl md:text-3xl font-playfair text-center">
             Créer un nouveau compte employé
           </DialogTitle>
-          <DialogDescription className="text-lg text-center">
+          <DialogDescription className="text-base md:text-lg text-center">
             Remplissez les informations pour créer un compte employé
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+        <form onSubmit={handleSubmit} className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-base flex items-center gap-2">
+              <Label htmlFor="email" className="text-sm md:text-base flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Email
               </Label>
@@ -114,12 +114,12 @@ const CreateEmployeeDialog = () => {
                   email: e.target.value
                 }))}
                 required
-                className="h-12 text-base transition-shadow duration-200 focus-within:shadow-md"
+                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-base flex items-center gap-2">
+              <Label htmlFor="password" className="text-sm md:text-base flex items-center gap-2">
                 <Lock className="h-4 w-4" />
                 Mot de passe
               </Label>
@@ -133,12 +133,12 @@ const CreateEmployeeDialog = () => {
                   password: e.target.value
                 }))}
                 required
-                className="h-12 text-base transition-shadow duration-200 focus-within:shadow-md"
+                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-base flex items-center gap-2">
+              <Label htmlFor="username" className="text-sm md:text-base flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Pseudo
               </Label>
@@ -151,12 +151,12 @@ const CreateEmployeeDialog = () => {
                   username: e.target.value
                 }))}
                 required
-                className="h-12 text-base transition-shadow duration-200 focus-within:shadow-md"
+                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-base flex items-center gap-2">
+              <Label htmlFor="fullName" className="text-sm md:text-base flex items-center gap-2">
                 <UserCircle className="h-4 w-4" />
                 Nom complet
               </Label>
@@ -169,24 +169,24 @@ const CreateEmployeeDialog = () => {
                   fullName: e.target.value
                 }))}
                 required
-                className="h-12 text-base transition-shadow duration-200 focus-within:shadow-md"
+                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
           </div>
 
-          <DialogFooter className="flex flex-col sm:flex-row justify-center gap-4 mt-8 pt-4 border-t">
+          <DialogFooter className="flex flex-col sm:flex-row justify-center gap-4 mt-6 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="w-full sm:w-40 h-12 text-base"
+              className="w-full sm:w-32 h-10 md:h-12 text-sm md:text-base"
             >
               Annuler
             </Button>
             <Button
               type="submit"
               disabled={createEmployee.isPending}
-              className="w-full sm:w-40 h-12 text-base bg-primary hover:bg-primary/90"
+              className="w-full sm:w-32 h-10 md:h-12 text-sm md:text-base bg-primary hover:bg-primary/90"
             >
               {createEmployee.isPending ? 'Création...' : 'Créer le compte'}
             </Button>
