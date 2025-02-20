@@ -8,7 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from "sonner";
 
-const AuthForm = () => {
+type AuthFormProps = {
+  type: 'login' | 'register';
+};
+
+const AuthForm = ({ type }: AuthFormProps) => {
   const { signIn, signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
@@ -84,15 +88,15 @@ const AuthForm = () => {
 
   return (
     <Card className="w-[400px]">
-      <Tabs defaultValue="signin">
+      <Tabs defaultValue={type}>
         <CardHeader>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Connexion</TabsTrigger>
-            <TabsTrigger value="signup">Inscription</TabsTrigger>
+            <TabsTrigger value="login">Connexion</TabsTrigger>
+            <TabsTrigger value="register">Inscription</TabsTrigger>
           </TabsList>
         </CardHeader>
         <CardContent>
-          <TabsContent value="signin">
+          <TabsContent value="login">
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signin-email">Email</Label>
@@ -108,7 +112,7 @@ const AuthForm = () => {
             </form>
           </TabsContent>
 
-          <TabsContent value="signup">
+          <TabsContent value="register">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
