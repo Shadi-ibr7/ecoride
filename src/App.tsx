@@ -12,6 +12,7 @@ import Rides from "@/pages/Rides";
 import NotFound from "@/pages/NotFound";
 import Contact from "@/pages/Contact";
 import EmployeeSpace from "@/pages/EmployeeSpace";
+import MentionsLegales from "@/pages/MentionsLegales";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/rides" element={<Rides />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/employee" element={<EmployeeSpace />} />
+        <Route path="/mentions-legales" element={<MentionsLegales />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
