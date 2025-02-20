@@ -23,7 +23,7 @@ export type Review = {
 };
 
 export type Ride = {
-  id: number;
+  id: string;  // Changed from number to string
   driver: Driver;
   vehicle: Vehicle;
   availableSeats: number;

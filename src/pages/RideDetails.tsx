@@ -29,7 +29,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { Ride } from '@/types/ride';
 
 const mockRide: Ride = {
-  id: 1,
+  id: "1",  // Changed from number to string
   driver: {
     id: 1,
     name: "Marie L.",
