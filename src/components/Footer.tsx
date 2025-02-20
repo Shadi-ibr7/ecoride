@@ -16,6 +16,11 @@ const Footer = () => {
               Mentions légales
             </Link>
           </div>
+          <div className="px-5 py-2">
+            <Link to="/politique-confidentialite" className="text-gray-600 hover:text-primary-600">
+              Politique de confidentialité
+            </Link>
+          </div>
         </nav>
         <p className="mt-8 text-center text-gray-500">
           © 2024 EcoRide. Tous droits réservés.

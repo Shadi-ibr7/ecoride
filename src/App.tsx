@@ -13,6 +13,7 @@ import NotFound from "@/pages/NotFound";
 import Contact from "@/pages/Contact";
 import EmployeeSpace from "@/pages/EmployeeSpace";
 import MentionsLegales from "@/pages/MentionsLegales";
+import PolitiqueConfidentialite from "@/pages/PolitiqueConfidentialite";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/employee" element={<EmployeeSpace />} />
         <Route path="/mentions-legales" element={<MentionsLegales />} />
+        <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
