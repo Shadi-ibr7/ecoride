@@ -98,7 +98,7 @@ const CreateEmployeeDialog = () => {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="mt-8">
-          <div className="grid gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-base flex items-center gap-2">
                 <Mail className="h-4 w-4" />
