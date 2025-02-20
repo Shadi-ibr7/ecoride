@@ -19,35 +19,53 @@ const EmployeeSpace = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
 
-  // Vérifier que l'utilisateur est connecté
-  useEffect(() => {
-    if (!session) {
-      toast.error("Vous devez être connecté pour accéder à cette page");
-      navigate('/login');
-      return;
-    }
-  }, [session, navigate]);
-
-  // Vérifier que l'utilisateur est bien un employé ou un admin
+  // Vérifier que l'utilisateur est connecté et est un employé/admin
   const { data: userProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
+      if (!session?.user?.id) {
+        throw new Error("Non connecté");
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', session?.user?.id)
+        .eq('id', session.user.id)
         .single();
 
       if (error) throw error;
+      
+      console.log("Profil utilisateur:", data); // Debug log
       return data;
     },
     enabled: !!session?.user?.id,
   });
 
+  // Gérer les états de chargement et d'erreur
+  useEffect(() => {
+    if (!isLoadingProfile && !session) {
+      console.log("Pas de session, redirection vers login"); // Debug log
+      toast.error("Vous devez être connecté pour accéder à cette page");
+      navigate('/login');
+      return;
+    }
+
+    if (!isLoadingProfile && userProfile && 
+        userProfile.user_type !== 'employee' && 
+        userProfile.user_type !== 'admin') {
+      console.log("Pas les bonnes permissions:", userProfile.user_type); // Debug log
+      toast.error("Vous n'avez pas accès à cette page");
+      navigate('/');
+      return;
+    }
+  }, [session, userProfile, isLoadingProfile, navigate]);
+
   // Récupérer les avis en attente de validation
   const { data: pendingReviews, isLoading: isLoadingReviews } = useQuery({
     queryKey: ['pending-reviews'],
     queryFn: async () => {
+      if (!session?.user?.id) return [];
+
       const { data, error } = await supabase
         .from('ride_validations')
         .select(`
@@ -88,6 +106,8 @@ const EmployeeSpace = () => {
   const { data: problematicRides, isLoading: isLoadingProblematic } = useQuery({
     queryKey: ['problematic-rides'],
     queryFn: async () => {
+      if (!session?.user?.id) return [];
+
       const { data, error } = await supabase
         .from('ride_validations')
         .select(`
@@ -124,14 +144,20 @@ const EmployeeSpace = () => {
     enabled: !!session?.user?.id && (userProfile?.user_type === 'employee' || userProfile?.user_type === 'admin'),
   });
 
-  if (isLoadingProfile || !session) {
-    return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 pt-24 flex items-center justify-center">
+          <p>Chargement...</p>
+        </div>
+      </div>
+    );
   }
 
-  if (userProfile?.user_type !== 'employee' && userProfile?.user_type !== 'admin') {
-    toast.error("Accès non autorisé");
-    navigate('/');
-    return null;
+  // N'affichez le contenu que si l'utilisateur est un employé ou un admin
+  if (!userProfile || (userProfile.user_type !== 'employee' && userProfile.user_type !== 'admin')) {
+    return null; // Le useEffect s'occupera de la redirection
   }
 
   return (
