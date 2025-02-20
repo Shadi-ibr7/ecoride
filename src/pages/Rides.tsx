@@ -29,17 +29,13 @@ const Rides = () => {
   const { data: rides, isLoading } = useQuery({
     queryKey: ["rides", searchParams],
     queryFn: async () => {
+      console.log("Fetching rides with params:", searchParams);
+      
       let query = supabase
         .from("rides")
         .select(`
           *,
-          driver:profiles!rides_driver_id_fkey (
-            id,
-            full_name,
-            rating,
-            photo_url,
-            preferences
-          )
+          driver:profiles(*)
         `);
 
       if (searchParams.departureCity) {
@@ -54,6 +50,8 @@ const Rides = () => {
 
       const { data, error } = await query;
 
+      console.log("Query response:", { data, error });
+
       if (error) throw error;
 
       // Transform the data to match the Ride type
@@ -66,11 +64,11 @@ const Rides = () => {
         price: rideData.price,
         availableSeats: rideData.available_seats,
         driver: {
-          id: rideData.driver.id,
-          name: rideData.driver.full_name,
-          rating: rideData.driver.rating || 4.5,
-          photoUrl: rideData.driver.photo_url || "/placeholder.svg",
-          preferences: rideData.driver.preferences || [],
+          id: rideData.driver?.id,
+          name: rideData.driver?.full_name || "Conducteur",
+          rating: rideData.driver?.rating || 4.5,
+          photoUrl: rideData.driver?.photo_url || "/placeholder.svg",
+          preferences: rideData.driver?.preferences || [],
           reviews: []
         },
         vehicle: {
@@ -80,6 +78,8 @@ const Rides = () => {
         },
         isEcological: rideData.vehicle_energy_type === "Électrique"
       }));
+
+      console.log("Transformed data:", transformedData);
 
       return transformedData;
     }
