@@ -1,7 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { Covoiturage } from "@/types/covoiturage";
 import Navbar from "@/components/Navbar";
 import RidesList from "@/components/rides/RidesList";
 import SearchBar from "@/components/SearchBar";
@@ -11,6 +10,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import NoRidesFound from "@/components/rides/NoRidesFound";
 import type { FilterValues } from "@/components/RideFilters";
+import type { Ride } from "@/types/ride";
 
 const Rides = () => {
   const [searchParams, setSearchParams] = useState({
@@ -26,65 +26,59 @@ const Rides = () => {
     minRating: null,
   });
 
-  const { data: covoiturages, isLoading } = useQuery({
-    queryKey: ["covoiturages", searchParams],
+  const { data: rides, isLoading } = useQuery({
+    queryKey: ["rides", searchParams],
     queryFn: async () => {
       let query = supabase
-        .from("covoiturage")
+        .from("rides")
         .select(`
           *,
-          utilise(
-            voiture:voiture(
-              *,
-              marque(*)
-            )
-          ),
-          participe(
-            utilisateur:utilisateur(*)
+          driver:profiles!rides_driver_id_fkey (
+            id,
+            full_name,
+            rating,
+            photo_url,
+            preferences
           )
         `);
 
       if (searchParams.departureCity) {
-        query = query.ilike("lieu_depart", `%${searchParams.departureCity}%`);
+        query = query.ilike("departure_address", `%${searchParams.departureCity}%`);
       }
       if (searchParams.arrivalCity) {
-        query = query.ilike("lieu_arrivee", `%${searchParams.arrivalCity}%`);
+        query = query.ilike("arrival_address", `%${searchParams.arrivalCity}%`);
       }
       if (searchParams.date) {
-        query = query.eq("date_depart", searchParams.date);
+        query = query.eq("departure_time", searchParams.date);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
 
-      // Transform the data to match the expected format
-      const transformedData = data.map((covoiturage: any) => ({
-        id: covoiturage.covoiturage_id,
-        departureCity: covoiturage.lieu_depart,
-        arrivalCity: covoiturage.lieu_arrivee,
-        departureTime: `${covoiturage.date_depart}T${covoiturage.heure_depart}`,
-        arrivalTime: `${covoiturage.date_arrivee}T${covoiturage.heure_arrivee}`,
-        price: covoiturage.prix_personne,
-        availableSeats: covoiturage.nb_place,
+      // Transform the data to match the Ride type
+      const transformedData: Ride[] = data.map((rideData: any) => ({
+        id: rideData.id,
+        departureCity: rideData.departure_address,
+        arrivalCity: rideData.arrival_address,
+        departureTime: rideData.departure_time,
+        arrivalTime: rideData.arrival_time,
+        price: rideData.price,
+        availableSeats: rideData.available_seats,
         driver: {
-          id: covoiturage.participe[0]?.utilisateur.utilisateur_id,
-          name: `${covoiturage.participe[0]?.utilisateur.prenom} ${covoiturage.participe[0]?.utilisateur.nom}`,
-          rating: 5, // TODO: Implement rating system
-          photoUrl: "/placeholder.svg", // TODO: Implement photo storage
-          preferences: [], // TODO: Implement preferences
-          reviews: [] // TODO: Implement reviews
+          id: rideData.driver.id,
+          name: rideData.driver.full_name,
+          rating: rideData.driver.rating || 4.5,
+          photoUrl: rideData.driver.photo_url || "/placeholder.svg",
+          preferences: rideData.driver.preferences || [],
+          reviews: []
         },
-        vehicle: covoiturage.utilise[0]?.voiture ? {
-          brand: covoiturage.utilise[0].voiture.marque.libelle || "",
-          model: covoiturage.utilise[0].voiture.modele || "",
-          energyType: covoiturage.utilise[0].voiture.energie || "Essence"
-        } : {
-          brand: "Non spécifié",
-          model: "Non spécifié",
-          energyType: "Non spécifié"
+        vehicle: {
+          brand: rideData.vehicle_brand || "Non spécifié",
+          model: rideData.vehicle_model || "Non spécifié",
+          energyType: rideData.vehicle_energy_type || "Essence"
         },
-        isEcological: covoiturage.utilise[0]?.voiture?.energie === "Électrique"
+        isEcological: rideData.vehicle_energy_type === "Électrique"
       }));
 
       return transformedData;
@@ -101,9 +95,9 @@ const Rides = () => {
 
   // Trouver la date la plus proche d'un trajet disponible
   const getNearestRideDate = () => {
-    if (!covoiturages || covoiturages.length === 0) return null;
+    if (!rides || rides.length === 0) return null;
     
-    const dates = covoiturages.map(ride => ride.departureTime);
+    const dates = rides.map(ride => ride.departureTime);
     return dates.sort()[0];
   };
 
@@ -131,9 +125,9 @@ const Rides = () => {
             <RideFilters onFiltersChange={handleFiltersChange} />
           </aside>
           <div className="flex-1">
-            {covoiturages && covoiturages.length > 0 ? (
+            {rides && rides.length > 0 ? (
               <RidesList 
-                rides={covoiturages} 
+                rides={rides} 
                 from={searchParams.departureCity || "Toutes les villes"} 
                 to={searchParams.arrivalCity || "Toutes les villes"} 
               />
