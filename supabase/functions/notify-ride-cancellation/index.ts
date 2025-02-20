@@ -1,91 +1,71 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const supabaseUrl = Deno.env.get("SUPABASE_URL");
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL');
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-const supabase = createClient(supabaseUrl!, supabaseServiceKey!, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
-
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { rideId } = await req.json();
+    const { ride_id } = await req.json();
+    const supabase = createClient(supabaseUrl!, supabaseServiceKey!);
 
-    // Récupérer les informations du trajet et du conducteur
-    const { data: ride, error: rideError } = await supabase
-      .from('rides')
+    // Récupérer les informations du trajet et des passagers
+    const { data: rideData, error: rideError } = await supabase
+      .from("rides")
       .select(`
         *,
-        driver:profiles!rides_driver_id_fkey(full_name),
-        vehicle:vehicles(*),
-        bookings:ride_bookings(
-          passenger:profiles(
-            email:auth_users(email)
-          )
+        driver:driver_id(email),
+        ride_bookings(
+          passenger:passenger_id(email)
         )
       `)
-      .eq('id', rideId)
+      .eq("id", ride_id)
       .single();
 
     if (rideError) throw rideError;
+    if (!rideData) throw new Error("Ride not found");
 
     // Envoyer un email à chaque passager
-    const emailPromises = ride.bookings
-      .filter((booking: any) => booking.passenger?.email?.auth_users?.[0]?.email)
-      .map((booking: any) => {
-        const passengerEmail = booking.passenger.email.auth_users[0].email;
-        
-        return resend.emails.send({
-          from: "EcoRide <no-reply@resend.dev>",
-          to: [passengerEmail],
-          subject: "Annulation de votre trajet",
-          html: `
-            <h1>Votre trajet a été annulé</h1>
-            <p>Bonjour,</p>
-            <p>Nous vous informons que le trajet suivant a été annulé par le conducteur :</p>
-            <ul>
-              <li>Départ : ${ride.departure_address}</li>
-              <li>Arrivée : ${ride.arrival_address}</li>
-              <li>Date : ${new Date(ride.departure_time).toLocaleDateString('fr-FR')}</li>
-              <li>Conducteur : ${ride.driver.full_name}</li>
-            </ul>
-            <p>Vos crédits ont été automatiquement remboursés.</p>
-            <p>Nous vous invitons à réserver un autre trajet sur notre plateforme.</p>
-            <p>L'équipe EcoRide</p>
-          `
-        });
+    const emailPromises = rideData.ride_bookings.map(async (booking) => {
+      await resend.emails.send({
+        from: "Covoiturage <onboarding@resend.dev>",
+        to: [booking.passenger.email],
+        subject: "Annulation de votre covoiturage",
+        html: `
+          <h1>Votre covoiturage a été annulé</h1>
+          <p>Le trajet ${rideData.departure_address} → ${rideData.arrival_address} prévu le ${new Date(rideData.departure_time).toLocaleDateString('fr-FR')} a été annulé.</p>
+          <p>Vos crédits ont été remboursés automatiquement.</p>
+        `,
       });
+    });
 
     await Promise.all(emailPromises);
-    
-    console.log(`Emails d'annulation envoyés pour le trajet ${rideId}`);
 
     return new Response(JSON.stringify({ success: true }), {
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      status: 500,
-    });
+    console.error("Error in notify-ride-cancellation:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
   }
 });
