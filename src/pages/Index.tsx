@@ -48,10 +48,26 @@ const Index = () => {
             </ul>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <img src="/lovable-uploads/30d9f65b-6e59-46c7-9d2a-b6a2900c67ff.png" alt="Nature view" className="rounded-lg w-full h-48 object-cover" />
-            <img src="/lovable-uploads/3fecfe61-338d-46d4-acdd-0c3fff4ba93f.png" alt="Mountain view" className="rounded-lg w-full h-48 object-cover" />
-            <img src="/lovable-uploads/ac726f09-557d-4b49-b13f-db1722e29675.png" alt="Sheep view" className="rounded-lg w-full h-48 object-cover" />
-            <img src="/lovable-uploads/d4764aa8-57e6-46e4-a810-29f3b78e6d73.png" alt="Wildlife view" className="rounded-lg w-full h-48 object-cover" />
+            <img 
+              src="https://images.unsplash.com/photo-1532939624-3af1308db9a5?w=800&auto=format&fit=crop&q=60" 
+              alt="Covoiturage écologique" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
+            <img 
+              src="https://images.unsplash.com/photo-1504670073073-6123e39e0754?w=800&auto=format&fit=crop&q=60" 
+              alt="Transport partagé" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
+            <img 
+              src="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=60" 
+              alt="Voyage écologique" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
+            <img 
+              src="https://images.unsplash.com/photo-1559221940-5795e3d1c316?w=800&auto=format&fit=crop&q=60" 
+              alt="Route écologique" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
           </div>
         </div>
       </section>
