@@ -23,12 +23,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from '@/hooks/useAuth';
+import { Info } from 'lucide-react';
 
 const CreateRide = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [showNewVehicleForm, setShowNewVehicleForm] = useState(false);
+  const [price, setPrice] = useState<number>(2);
 
   // Récupérer les véhicules de l'utilisateur
   const { data: vehicles } = useQuery({
@@ -124,13 +126,14 @@ const CreateRide = () => {
         model: formData.get('model'),
         license_plate: formData.get('license_plate'),
         color: formData.get('color'),
-        seats: Number(formData.get('seats'))
+        seats: Number(formData.get('seats')),
+        energy_type: formData.get('energy_type')
       });
     }
 
-    const price = Number(formData.get('price'));
-    if (price < 2) {
-      toast.error('Le prix minimum est de 2 crédits');
+    const requestedPrice = Number(formData.get('price'));
+    if (requestedPrice < 2) {
+      toast.error('Le prix minimum est de 2 crédits (frais de plateforme)');
       return;
     }
 
@@ -140,8 +143,11 @@ const CreateRide = () => {
       arrival_address: formData.get('arrival'),
       departure_time: formData.get('departure_time'),
       arrival_time: formData.get('arrival_time'),
-      price: price,
-      available_seats: Number(formData.get('available_seats'))
+      price: requestedPrice,
+      available_seats: Number(formData.get('available_seats')),
+      vehicle_brand: formData.get('brand') || vehicles?.find(v => v.id === selectedVehicle)?.brand,
+      vehicle_model: formData.get('model') || vehicles?.find(v => v.id === selectedVehicle)?.model,
+      vehicle_energy_type: formData.get('energy_type') || vehicles?.find(v => v.id === selectedVehicle)?.energy_type
     });
   };
 
@@ -158,69 +164,26 @@ const CreateRide = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Label>Véhicule</Label>
-                  {vehicles && vehicles.length > 0 && (
-                    <Select onValueChange={setSelectedVehicle} value={selectedVehicle || undefined}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un véhicule" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vehicles.map((vehicle) => (
-                          <SelectItem key={vehicle.id} value={vehicle.id}>
-                            {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="mt-2"
-                    onClick={() => setShowNewVehicleForm(!showNewVehicleForm)}
-                  >
-                    {showNewVehicleForm ? "Utiliser un véhicule existant" : "Ajouter un nouveau véhicule"}
-                  </Button>
-                </div>
-
-                {showNewVehicleForm && (
-                  <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <Label>Marque</Label>
-                      <Input name="brand" required />
-                    </div>
-                    <div>
-                      <Label>Modèle</Label>
-                      <Input name="model" required />
-                    </div>
-                    <div>
-                      <Label>Plaque d'immatriculation</Label>
-                      <Input name="license_plate" required />
-                    </div>
-                    <div>
-                      <Label>Couleur</Label>
-                      <Input name="color" required />
-                    </div>
-                    <div>
-                      <Label>Nombre de places</Label>
-                      <Input type="number" name="seats" min="1" required />
-                    </div>
+              {/* Section trajet */}
+              <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4">
+                <h3 className="text-lg font-semibold mb-4">Informations du trajet</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Départ</Label>
+                    <Input 
+                      name="departure" 
+                      placeholder="Ville de départ"
+                      required 
+                    />
                   </div>
-                )}
-
-                <div>
-                  <Label>Adresse de départ</Label>
-                  <Input name="departure" required />
-                </div>
-
-                <div>
-                  <Label>Adresse d'arrivée</Label>
-                  <Input name="arrival" required />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Arrivée</Label>
+                    <Input 
+                      name="arrival" 
+                      placeholder="Ville d'arrivée"
+                      required 
+                    />
+                  </div>
                   <div>
                     <Label>Date et heure de départ</Label>
                     <Input type="datetime-local" name="departure_time" required />
@@ -230,17 +193,110 @@ const CreateRide = () => {
                     <Input type="datetime-local" name="arrival_time" required />
                   </div>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
+              {/* Section prix et places */}
+              <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4">
+                <h3 className="text-lg font-semibold mb-4">Prix et places disponibles</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Prix (min. 2 crédits)</Label>
-                    <Input type="number" name="price" min="2" step="0.5" required />
+                    <Label htmlFor="price">Prix par passager</Label>
+                    <div className="mt-1 relative">
+                      <Input
+                        type="number"
+                        name="price"
+                        min="2"
+                        step="0.5"
+                        value={price}
+                        onChange={(e) => setPrice(Number(e.target.value))}
+                        required
+                      />
+                      <div className="text-sm text-gray-500 mt-1 flex items-center">
+                        <Info className="h-4 w-4 mr-1" />
+                        Prix minimum : 2 crédits (frais de plateforme)
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <Label>Places disponibles</Label>
                     <Input type="number" name="available_seats" min="1" required />
                   </div>
                 </div>
+              </div>
+
+              {/* Section véhicule */}
+              <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-4">
+                <h3 className="text-lg font-semibold mb-4">Véhicule</h3>
+                <div>
+                  {vehicles && vehicles.length > 0 && (
+                    <div className="mb-4">
+                      <Label>Sélectionner un véhicule existant</Label>
+                      <Select onValueChange={setSelectedVehicle} value={selectedVehicle || undefined}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choisissez un véhicule" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {vehicles.map((vehicle) => (
+                            <SelectItem key={vehicle.id} value={vehicle.id}>
+                              {vehicle.brand} {vehicle.model} - {vehicle.license_plate}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowNewVehicleForm(!showNewVehicleForm);
+                      setSelectedVehicle(null);
+                    }}
+                  >
+                    {showNewVehicleForm ? "Utiliser un véhicule existant" : "Ajouter un nouveau véhicule"}
+                  </Button>
+                </div>
+
+                {showNewVehicleForm && (
+                  <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Marque</Label>
+                        <Input name="brand" required />
+                      </div>
+                      <div>
+                        <Label>Modèle</Label>
+                        <Input name="model" required />
+                      </div>
+                      <div>
+                        <Label>Plaque d'immatriculation</Label>
+                        <Input name="license_plate" required />
+                      </div>
+                      <div>
+                        <Label>Couleur</Label>
+                        <Input name="color" required />
+                      </div>
+                      <div>
+                        <Label>Type d'énergie</Label>
+                        <Select name="energy_type" required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choisir le type d'énergie" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Essence">Essence</SelectItem>
+                            <SelectItem value="Diesel">Diesel</SelectItem>
+                            <SelectItem value="Électrique">Électrique</SelectItem>
+                            <SelectItem value="Hybride">Hybride</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Nombre de places</Label>
+                        <Input type="number" name="seats" min="1" required />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Button type="submit" className="w-full">
