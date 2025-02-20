@@ -49,32 +49,32 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img 
-              src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop&q=60" 
-              alt="Voiture électrique moderne" 
+              src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=60" 
+              alt="Tesla Model 3" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&auto=format&fit=crop&q=60" 
+              src="https://images.unsplash.com/photo-1615526675741-3ce9c4544ee5?w=800&auto=format&fit=crop&q=60" 
               alt="Borne de recharge électrique" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1617886903355-8665577a22c7?w=800&auto=format&fit=crop&q=60" 
-              alt="Intérieur voiture électrique" 
+              src="https://images.unsplash.com/photo-1611634846460-c04213a1ceb9?w=800&auto=format&fit=crop&q=60" 
+              alt="Tableau de bord électrique" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1611516818236-0531e459c047?w=800&auto=format&fit=crop&q=60" 
-              alt="Station de recharge verte" 
+              src="https://images.unsplash.com/photo-1657624983656-3c225f196179?w=800&auto=format&fit=crop&q=60" 
+              alt="Station de recharge moderne" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1619767886558-efdc259cbe4f?w=800&auto=format&fit=crop&q=60" 
-              alt="Voiture électrique en charge" 
+              src="https://images.unsplash.com/photo-1583531352515-8884af319dc1?w=800&auto=format&fit=crop&q=60" 
+              alt="Voiture électrique sportive" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1593941707874-ef25b8b4770b?w=800&auto=format&fit=crop&q=60" 
+              src="https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800&auto=format&fit=crop&q=60" 
               alt="Détail voiture électrique" 
               className="rounded-lg w-full h-48 object-cover" 
             />
