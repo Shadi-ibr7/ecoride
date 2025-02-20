@@ -33,11 +33,6 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
           <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/67f6b0b6-c449-4ae0-b1b1-2d4039f6e32f.png" 
-              alt="EcoRide Logo" 
-              className="h-8 w-8"
-            />
             <Link to="/" className="text-primary-600 font-playfair text-2xl font-bold">
               EcoRide
             </Link>
