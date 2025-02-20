@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import Navbar from '@/components/Navbar';
@@ -11,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { History } from 'lucide-react';
 import { toast } from "sonner";
 import type { Database } from '@/types/database.types';
 
@@ -94,6 +96,12 @@ const UserProfile = () => {
               Mon Profil
             </h1>
             <p className="text-gray-600">{session.user?.email}</p>
+            <Link to="/rides/history">
+              <Button variant="outline" className="mt-4">
+                <History className="w-4 h-4 mr-2" />
+                Voir mon historique de trajets
+              </Button>
+            </Link>
           </div>
 
           <div className="space-y-6">
