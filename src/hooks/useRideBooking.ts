@@ -17,33 +17,50 @@ export const useRideBooking = () => {
       // 1. Vérifier les crédits de l'utilisateur
       const { data: userCredits, error: creditsError } = await supabase
         .from('user_credits')
-        .select('credits')
+        .select('credits, id')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
       if (creditsError) throw creditsError;
 
-      // Si aucun enregistrement de crédit n'existe, on en crée un avec 0 crédits
+      // Si aucun enregistrement de crédit n'existe
       if (!userCredits) {
+        // Créer un enregistrement de crédits avec 0 crédits
         const { error: insertError } = await supabase
           .from('user_credits')
-          .insert([{ user_id: session.user.id, credits: 0 }]);
-        
-        if (insertError) throw insertError;
+          .insert([
+            { 
+              user_id: session.user.id,
+              credits: 0
+            }
+          ]);
+
+        if (insertError) {
+          console.error('Erreur lors de la création des crédits:', insertError);
+          throw new Error('Crédit insuffisant. Vous avez 0 crédits, le trajet en coûte ' + price);
+        }
         throw new Error('Crédit insuffisant. Vous avez 0 crédits, le trajet en coûte ' + price);
       }
 
       if (userCredits.credits < price) {
-        throw new Error(`Crédit insuffisant. Vous avez ${userCredits.credits} crédits, le trajet en coûte ${price}.`);
+        throw new Error(`Crédit insuffisant. Vous avez ${userCredits.credits} crédits, le trajet en coûte ${price}`);
       }
 
-      // 2. Créer la réservation et mettre à jour les crédits
-      const { error: bookingError } = await supabase.from('ride_bookings').insert({
-        ride_id: rideId,
-        passenger_id: session.user.id,
-      });
+      // 2. Créer la réservation
+      const { data: booking, error: bookingError } = await supabase
+        .from('ride_bookings')
+        .insert([{
+          ride_id: rideId,
+          passenger_id: session.user.id,
+          booking_status: 'confirmed'
+        }])
+        .select()
+        .single();
 
-      if (bookingError) throw bookingError;
+      if (bookingError) {
+        console.error('Erreur lors de la réservation:', bookingError);
+        throw bookingError;
+      }
 
       // 3. Mettre à jour les crédits de l'utilisateur
       const { error: updateError } = await supabase
@@ -51,7 +68,17 @@ export const useRideBooking = () => {
         .update({ credits: userCredits.credits - price })
         .eq('user_id', session.user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Erreur lors de la mise à jour des crédits:', updateError);
+        // Annuler la réservation si la mise à jour des crédits échoue
+        await supabase
+          .from('ride_bookings')
+          .delete()
+          .eq('id', booking.id);
+        throw updateError;
+      }
+
+      return booking;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rides'] });
