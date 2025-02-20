@@ -49,23 +49,23 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <img 
-              src="https://images.unsplash.com/photo-1532939624-3af1308db9a5?w=800&auto=format&fit=crop&q=60" 
-              alt="Covoiturage écologique" 
+              src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop&q=60" 
+              alt="Voiture électrique moderne" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1504670073073-6123e39e0754?w=800&auto=format&fit=crop&q=60" 
-              alt="Transport partagé" 
+              src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&auto=format&fit=crop&q=60" 
+              alt="Borne de recharge électrique" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=60" 
-              alt="Voyage écologique" 
+              src="https://images.unsplash.com/photo-1617886903355-8665577a22c7?w=800&auto=format&fit=crop&q=60" 
+              alt="Intérieur voiture électrique" 
               className="rounded-lg w-full h-48 object-cover" 
             />
             <img 
-              src="https://images.unsplash.com/photo-1559221940-5795e3d1c316?w=800&auto=format&fit=crop&q=60" 
-              alt="Route écologique" 
+              src="https://images.unsplash.com/photo-1611516818236-0531e459c047?w=800&auto=format&fit=crop&q=60" 
+              alt="Station de recharge verte" 
               className="rounded-lg w-full h-48 object-cover" 
             />
           </div>
