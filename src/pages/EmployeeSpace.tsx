@@ -28,7 +28,7 @@ const EmployeeSpace = () => {
     }
   }, [session, navigate]);
 
-  // Vérifier que l'utilisateur est bien un employé
+  // Vérifier que l'utilisateur est bien un employé ou un admin
   const { data: userProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
@@ -81,7 +81,7 @@ const EmployeeSpace = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
+    enabled: !!session?.user?.id && (userProfile?.user_type === 'employee' || userProfile?.user_type === 'admin'),
   });
 
   // Récupérer les trajets problématiques
@@ -121,14 +121,14 @@ const EmployeeSpace = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!session?.user?.id && userProfile?.user_type === 'employee',
+    enabled: !!session?.user?.id && (userProfile?.user_type === 'employee' || userProfile?.user_type === 'admin'),
   });
 
   if (isLoadingProfile || !session) {
     return <div className="min-h-screen flex items-center justify-center">Chargement...</div>;
   }
 
-  if (userProfile?.user_type !== 'employee') {
+  if (userProfile?.user_type !== 'employee' && userProfile?.user_type !== 'admin') {
     toast.error("Accès non autorisé");
     navigate('/');
     return null;
