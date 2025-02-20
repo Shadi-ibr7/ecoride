@@ -1,13 +1,12 @@
-
-import Navbar from '@/components/Navbar';
+import NavbarStyled from '@/components/NavbarStyled';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
 import { Heart, DollarSign, Users } from 'lucide-react';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <Navbar />
+    <div className="min-h-screen flex flex-col">
+      <NavbarStyled />
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 px-4">
