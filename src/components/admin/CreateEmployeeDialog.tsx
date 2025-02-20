@@ -91,15 +91,15 @@ const CreateEmployeeDialog = () => {
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Créer un nouveau compte employé</DialogTitle>
+      <DialogContent className="sm:max-w-[600px] fixed inset-4 top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-2xl">Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>
             Remplissez les informations pour créer un compte employé
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid gap-4">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="grid gap-6 max-w-lg mx-auto">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -112,6 +112,7 @@ const CreateEmployeeDialog = () => {
                   email: e.target.value
                 }))}
                 required
+                className="w-full"
               />
             </div>
             <div className="space-y-2">
@@ -126,6 +127,7 @@ const CreateEmployeeDialog = () => {
                   password: e.target.value
                 }))}
                 required
+                className="w-full"
               />
             </div>
             <div className="space-y-2">
@@ -139,6 +141,7 @@ const CreateEmployeeDialog = () => {
                   username: e.target.value
                 }))}
                 required
+                className="w-full"
               />
             </div>
             <div className="space-y-2">
@@ -152,14 +155,15 @@ const CreateEmployeeDialog = () => {
                   fullName: e.target.value
                 }))}
                 required
+                className="w-full"
               />
             </div>
           </div>
-          <DialogFooter className="mt-6">
-            <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+          <DialogFooter className="flex justify-center gap-4 mt-8">
+            <Button variant="outline" type="button" onClick={() => setOpen(false)} className="w-32">
               Annuler
             </Button>
-            <Button type="submit" disabled={createEmployee.isPending}>
+            <Button type="submit" disabled={createEmployee.isPending} className="w-32">
               {createEmployee.isPending ? 'Création...' : 'Créer le compte'}
             </Button>
           </DialogFooter>
