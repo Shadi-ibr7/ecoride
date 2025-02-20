@@ -91,73 +91,71 @@ const CreateEmployeeDialog = () => {
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>
             Remplissez les informations pour créer un compte employé
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="email@exemple.com"
-                  value={newEmployee.email}
-                  onChange={e => setNewEmployee(prev => ({
-                    ...prev,
-                    email: e.target.value
-                  }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={newEmployee.password}
-                  onChange={e => setNewEmployee(prev => ({
-                    ...prev,
-                    password: e.target.value
-                  }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="username">Pseudo</Label>
-                <Input
-                  id="username"
-                  placeholder="pseudo"
-                  value={newEmployee.username}
-                  onChange={e => setNewEmployee(prev => ({
-                    ...prev,
-                    username: e.target.value
-                  }))}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Nom complet</Label>
-                <Input
-                  id="fullName"
-                  placeholder="Nom et prénom"
-                  value={newEmployee.fullName}
-                  onChange={e => setNewEmployee(prev => ({
-                    ...prev,
-                    fullName: e.target.value
-                  }))}
-                  required
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="email@exemple.com"
+                value={newEmployee.email}
+                onChange={e => setNewEmployee(prev => ({
+                  ...prev,
+                  email: e.target.value
+                }))}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={newEmployee.password}
+                onChange={e => setNewEmployee(prev => ({
+                  ...prev,
+                  password: e.target.value
+                }))}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="username">Pseudo</Label>
+              <Input
+                id="username"
+                placeholder="pseudo"
+                value={newEmployee.username}
+                onChange={e => setNewEmployee(prev => ({
+                  ...prev,
+                  username: e.target.value
+                }))}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Nom complet</Label>
+              <Input
+                id="fullName"
+                placeholder="Nom et prénom"
+                value={newEmployee.fullName}
+                onChange={e => setNewEmployee(prev => ({
+                  ...prev,
+                  fullName: e.target.value
+                }))}
+                required
+              />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-6">
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>
               Annuler
             </Button>
