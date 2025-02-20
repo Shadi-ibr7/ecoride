@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
-  const { session } = useAuth();
+  const { session, signOut } = useAuth();
 
   const handleSignOut = () => {
     signOut.mutate();
