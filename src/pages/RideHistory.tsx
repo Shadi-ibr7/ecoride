@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -9,18 +8,22 @@ import DriverRides from '@/components/rides/history/DriverRides';
 import PassengerRides from '@/components/rides/history/PassengerRides';
 import CancellationDialog from '@/components/rides/history/CancellationDialog';
 import { Card, CardContent } from "@/components/ui/card";
-
 const RideHistory = () => {
-  const { session } = useAuth();
+  const {
+    session
+  } = useAuth();
   const queryClient = useQueryClient();
   const [rideToCancel, setRideToCancel] = useState<string | null>(null);
-
-  const { data: rides, isLoading } = useQuery({
+  const {
+    data: rides,
+    isLoading
+  } = useQuery({
     queryKey: ['rides-history', session?.user?.id],
     queryFn: async () => {
-      const { data: driverRides, error: driverError } = await supabase
-        .from('rides')
-        .select(`
+      const {
+        data: driverRides,
+        error: driverError
+      } = await supabase.from('rides').select(`
           *,
           ride_bookings (
             id,
@@ -29,13 +32,12 @@ const RideHistory = () => {
             created_at,
             cancelled_at
           )
-        `)
-        .eq('driver_id', session?.user?.id);
+        `).eq('driver_id', session?.user?.id);
       if (driverError) throw driverError;
-
-      const { data: passengerRides, error: passengerError } = await supabase
-        .from('ride_bookings')
-        .select(`
+      const {
+        data: passengerRides,
+        error: passengerError
+      } = await supabase.from('ride_bookings').select(`
           *,
           rides (
             *,
@@ -43,10 +45,8 @@ const RideHistory = () => {
               full_name
             )
           )
-        `)
-        .eq('passenger_id', session?.user?.id);
+        `).eq('passenger_id', session?.user?.id);
       if (passengerError) throw passengerError;
-
       return {
         asDriver: driverRides || [],
         asPassenger: passengerRides || []
@@ -54,25 +54,28 @@ const RideHistory = () => {
     },
     enabled: !!session?.user?.id
   });
-
   const cancelRide = useMutation({
     mutationFn: async (rideId: string) => {
-      const { error } = await supabase
-        .from('rides')
-        .update({ status: 'cancelled' })
-        .eq('id', rideId);
+      const {
+        error
+      } = await supabase.from('rides').update({
+        status: 'cancelled'
+      }).eq('id', rideId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['rides-history'] });
+      queryClient.invalidateQueries({
+        queryKey: ['rides-history']
+      });
       toast.success('Trajet annulé avec succès');
       setRideToCancel(null);
     },
     onError: (error: Error) => {
-      toast.error('Erreur lors de l\'annulation', { description: error.message });
+      toast.error('Erreur lors de l\'annulation', {
+        description: error.message
+      });
     }
   });
-
   if (isLoading) {
     return <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -85,27 +88,14 @@ const RideHistory = () => {
       </div>
     </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
+  return <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <DriverRides
-          rides={rides?.asDriver || []}
-          onCancelRide={(rideId) => setRideToCancel(rideId)}
-        />
-        <PassengerRides
-          bookings={rides?.asPassenger || []}
-        />
+      <div className="container mx-auto px-4 py-8 my-[90px]">
+        <DriverRides rides={rides?.asDriver || []} onCancelRide={rideId => setRideToCancel(rideId)} />
+        <PassengerRides bookings={rides?.asPassenger || []} />
       </div>
 
-      <CancellationDialog
-        isOpen={!!rideToCancel}
-        onClose={() => setRideToCancel(null)}
-        onConfirm={() => rideToCancel && cancelRide.mutate(rideToCancel)}
-      />
-    </div>
-  );
+      <CancellationDialog isOpen={!!rideToCancel} onClose={() => setRideToCancel(null)} onConfirm={() => rideToCancel && cancelRide.mutate(rideToCancel)} />
+    </div>;
 };
-
 export default RideHistory;
