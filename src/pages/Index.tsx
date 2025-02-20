@@ -68,6 +68,16 @@ const Index = () => {
               alt="Station de recharge verte" 
               className="rounded-lg w-full h-48 object-cover" 
             />
+            <img 
+              src="https://images.unsplash.com/photo-1619767886558-efdc259cbe4f?w=800&auto=format&fit=crop&q=60" 
+              alt="Voiture électrique en charge" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
+            <img 
+              src="https://images.unsplash.com/photo-1593941707874-ef25b8b4770b?w=800&auto=format&fit=crop&q=60" 
+              alt="Détail voiture électrique" 
+              className="rounded-lg w-full h-48 object-cover" 
+            />
           </div>
         </div>
       </section>
