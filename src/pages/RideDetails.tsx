@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -29,7 +28,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { Ride } from '@/types/ride';
 
 const mockRide: Ride = {
-  id: "1",  // Changed from number to string
+  id: "123e4567-e89b-12d3-a456-426614174000",
   driver: {
     id: 1,
     name: "Marie L.",
@@ -69,7 +68,7 @@ const mockRide: Ride = {
 
 const RideDetails = () => {
   const { id } = useParams();
-  const ride = mockRide;
+  const ride = id ? { ...mockRide, id } : mockRide;
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { session } = useAuth();
   const { bookRide } = useRideBooking();
@@ -106,7 +105,6 @@ const RideDetails = () => {
       });
       setShowConfirmDialog(false);
     } catch (error) {
-      // L'erreur est déjà gérée par le hook useRideBooking
       setShowConfirmDialog(false);
     }
   };
