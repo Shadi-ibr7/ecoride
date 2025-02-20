@@ -351,6 +351,41 @@ export type Database = {
         }
         Relationships: []
       }
+      ride_bookings: {
+        Row: {
+          booking_status: string | null
+          cancelled_at: string | null
+          created_at: string | null
+          id: string
+          passenger_id: string | null
+          ride_id: string | null
+        }
+        Insert: {
+          booking_status?: string | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          id?: string
+          passenger_id?: string | null
+          ride_id?: string | null
+        }
+        Update: {
+          booking_status?: string | null
+          cancelled_at?: string | null
+          created_at?: string | null
+          id?: string
+          passenger_id?: string | null
+          ride_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_bookings_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rides: {
         Row: {
           arrival_address: string
@@ -363,6 +398,7 @@ export type Database = {
           id: string
           is_cancelled: boolean | null
           price: number
+          status: string | null
           updated_at: string | null
         }
         Insert: {
@@ -376,6 +412,7 @@ export type Database = {
           id?: string
           is_cancelled?: boolean | null
           price: number
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -389,6 +426,7 @@ export type Database = {
           id?: string
           is_cancelled?: boolean | null
           price?: number
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: []

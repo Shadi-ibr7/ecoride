@@ -3,9 +3,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthForm from '@/components/auth/AuthForm';
 
-interface AuthProps {
+type AuthProps = {
   type: 'login' | 'register';
-}
+};
 
 const Auth = ({ type }: AuthProps) => {
   return (
