@@ -1,7 +1,7 @@
 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, MapPin, Clock, Users } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -17,76 +17,109 @@ interface ProblematicRidesProps {
 }
 
 const ProblematicRides = ({ rides, isLoading }: ProblematicRidesProps) => {
+  if (isLoading) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-600">Chargement des trajets problématiques...</p>
+      </div>
+    );
+  }
+
+  if (rides.length === 0) {
+    return (
+      <div className="bg-gray-50 rounded-lg p-8 text-center">
+        <p className="text-gray-600">Aucun trajet problématique signalé</p>
+      </div>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Trajets problématiques</CardTitle>
-        <CardDescription>
-          Liste des trajets signalés comme problématiques par les utilisateurs
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {isLoading ? (
-            <p>Chargement des trajets problématiques...</p>
-          ) : rides?.length === 0 ? (
-            <p className="text-gray-500">Aucun trajet problématique signalé</p>
-          ) : (
-            rides?.map((issue) => (
-              <Card key={issue.id} className="p-4">
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Badge variant="destructive" className="mb-2">
-                        <AlertTriangle className="w-4 h-4 mr-2" />
-                        Problème signalé
-                      </Badge>
-                      <h3 className="font-semibold">
-                        Trajet #{issue.booking.ride.id}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {issue.booking.ride.departure_address} → {issue.booking.ride.arrival_address}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Le {format(new Date(issue.booking.ride.departure_time), 'PPP', { locale: fr })}
-                      </p>
-                    </div>
+    <div className="grid gap-6 md:grid-cols-2">
+      {rides.map((issue) => (
+        <Card key={issue.id} className="bg-white shadow-lg">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="destructive" className="gap-1">
+                <AlertTriangle className="w-4 h-4" />
+                Incident signalé
+              </Badge>
+            </div>
+            <CardTitle className="text-lg font-semibold">
+              Trajet #{issue.booking.ride.id}
+            </CardTitle>
+            <CardDescription>
+              Signalement enregistré le {format(new Date(issue.created_at), 'PPP', { locale: fr })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-5 h-5 text-primary-600 mt-1 shrink-0" />
+                  <div>
+                    <p className="font-medium">
+                      {issue.booking.ride.departure_address} → {issue.booking.ride.arrival_address}
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium mb-2">Conducteur</h4>
-                      <p className="text-sm">
-                        Pseudo : {issue.booking.ride.driver.username}
-                      </p>
-                      <p className="text-sm">
-                        Email : {issue.booking.ride.driver.auth_users?.[0]?.email}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Passager</h4>
-                      <p className="text-sm">
-                        Pseudo : {issue.booking.passenger.username}
-                      </p>
-                      <p className="text-sm">
-                        Email : {issue.booking.passenger.auth_users?.[0]?.email}
-                      </p>
-                    </div>
-                  </div>
-
-                  {issue.comment && (
-                    <div>
-                      <h4 className="font-medium mb-2">Description du problème</h4>
-                      <p className="text-sm text-gray-700">{issue.comment}</p>
-                    </div>
-                  )}
                 </div>
-              </Card>
-            ))
-          )}
-        </div>
-      </CardContent>
-    </Card>
+                <div className="flex items-start gap-2">
+                  <Clock className="w-5 h-5 text-primary-600 mt-1 shrink-0" />
+                  <div>
+                    <p>Départ : {format(new Date(issue.booking.ride.departure_time), 'PPP à HH:mm', { locale: fr })}</p>
+                    <p>Arrivée : {format(new Date(issue.booking.ride.arrival_time), 'PPP à HH:mm', { locale: fr })}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 pt-2">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary-600" />
+                    <p className="font-medium">Conducteur</p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm">
+                      <span className="text-gray-600">Pseudo :</span>{' '}
+                      {issue.booking.ride.driver.username}
+                    </p>
+                    <p className="text-sm">
+                      <span className="text-gray-600">Email :</span>{' '}
+                      {issue.booking.ride.driver.auth_users?.[0]?.email}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary-600" />
+                    <p className="font-medium">Passager</p>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm">
+                      <span className="text-gray-600">Pseudo :</span>{' '}
+                      {issue.booking.passenger.username}
+                    </p>
+                    <p className="text-sm">
+                      <span className="text-gray-600">Email :</span>{' '}
+                      {issue.booking.passenger.auth_users?.[0]?.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {issue.comment && (
+                <div className="pt-2">
+                  <p className="font-medium mb-2">Description du problème</p>
+                  <div className="bg-red-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-700">{issue.comment}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 

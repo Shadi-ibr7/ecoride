@@ -1,7 +1,7 @@
 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Star } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from "sonner";
@@ -42,70 +42,87 @@ const PendingReviews = ({ reviews, isLoading }: PendingReviewsProps) => {
     },
   });
 
+  if (isLoading) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-600">Chargement des avis...</p>
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div className="bg-gray-50 rounded-lg p-8 text-center">
+        <p className="text-gray-600">Aucun avis en attente de validation</p>
+      </div>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Avis en attente de validation</CardTitle>
-        <CardDescription>
-          Validez ou refusez les avis des utilisateurs avant leur publication
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {isLoading ? (
-            <p>Chargement des avis...</p>
-          ) : reviews?.length === 0 ? (
-            <p className="text-gray-500">Aucun avis en attente de validation</p>
-          ) : (
-            reviews?.map((review) => (
-              <Card key={review.id} className="p-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold">
-                        De {review.booking.passenger.username}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Pour le trajet {review.booking.ride.departure_address} → {review.booking.ride.arrival_address}
-                      </p>
-                      <p className="text-sm">
-                        Le {format(new Date(review.booking.ride.departure_time), 'PPP', { locale: fr })}
-                      </p>
-                      {review.rating && (
-                        <p className="text-sm">Note : {review.rating}/5</p>
-                      )}
-                      {review.comment && (
-                        <p className="mt-2 text-gray-700">{review.comment}</p>
-                      )}
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={() => updateReviewStatus.mutate({ id: review.id, status: 'approved' })}
-                        disabled={updateReviewStatus.isPending}
-                      >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Valider
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => updateReviewStatus.mutate({ id: review.id, status: 'rejected' })}
-                        disabled={updateReviewStatus.isPending}
-                      >
-                        <XCircle className="w-4 h-4 mr-2" />
-                        Refuser
-                      </Button>
-                    </div>
-                  </div>
+    <div className="grid gap-6 md:grid-cols-2">
+      {reviews.map((review) => (
+        <Card key={review.id} className="bg-white shadow-lg">
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-lg font-semibold text-primary-700">
+                  Avis de {review.booking.passenger.username}
+                </CardTitle>
+                <CardDescription>
+                  Pour le trajet #{review.booking.ride.id}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-1 bg-primary-100 px-2 py-1 rounded">
+                <Star className="w-4 h-4 text-primary-600 fill-current" />
+                <span className="font-medium">{review.rating}/5</span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Trajet</p>
+                <p className="font-medium">
+                  {review.booking.ride.departure_address} → {review.booking.ride.arrival_address}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Le {format(new Date(review.booking.ride.departure_time), 'PPP', { locale: fr })}
+                </p>
+              </div>
+
+              {review.comment && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Commentaire</p>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
+                    {review.comment}
+                  </p>
                 </div>
-              </Card>
-            ))
-          )}
-        </div>
-      </CardContent>
-    </Card>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  className="flex-1"
+                  onClick={() => updateReviewStatus.mutate({ id: review.id, status: 'approved' })}
+                  disabled={updateReviewStatus.isPending}
+                >
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  Valider
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={() => updateReviewStatus.mutate({ id: review.id, status: 'rejected' })}
+                  disabled={updateReviewStatus.isPending}
+                >
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Refuser
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 

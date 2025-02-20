@@ -135,31 +135,48 @@ const EmployeeSpace = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
+    <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 mt-4">
-        <h1 className="text-2xl font-bold mb-6">Espace Employé</h1>
+      <div className="container mx-auto px-4 py-8 pt-24 sm:pt-28">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 className="text-3xl font-bold text-primary-600 mb-2">Espace Employé</h1>
+            <p className="text-gray-600 mb-6">
+              Gérez les avis des utilisateurs et surveillez les trajets problématiques
+            </p>
 
-        <Tabs defaultValue="reviews" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="reviews">Avis en attente</TabsTrigger>
-            <TabsTrigger value="problems">Trajets problématiques</TabsTrigger>
-          </TabsList>
+            <Tabs defaultValue="reviews" className="space-y-6">
+              <TabsList className="bg-primary-100/50 p-1">
+                <TabsTrigger 
+                  value="reviews" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-primary-600"
+                >
+                  Avis en attente
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="problems"
+                  className="data-[state=active]:bg-white data-[state=active]:text-primary-600"
+                >
+                  Trajets problématiques
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="reviews">
-            <PendingReviews 
-              reviews={pendingReviews || []}
-              isLoading={isLoadingReviews}
-            />
-          </TabsContent>
+              <TabsContent value="reviews">
+                <PendingReviews 
+                  reviews={pendingReviews || []}
+                  isLoading={isLoadingReviews}
+                />
+              </TabsContent>
 
-          <TabsContent value="problems">
-            <ProblematicRides 
-              rides={problematicRides || []}
-              isLoading={isLoadingProblematic}
-            />
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="problems">
+                <ProblematicRides 
+                  rides={problematicRides || []}
+                  isLoading={isLoadingProblematic}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   );
