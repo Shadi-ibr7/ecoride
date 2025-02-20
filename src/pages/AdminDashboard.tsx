@@ -11,6 +11,7 @@ import RidesChart from '@/components/admin/RidesChart';
 import UsersTable from '@/components/admin/UsersTable';
 import Navbar from '@/components/Navbar';
 import { Loader2 } from 'lucide-react';
+import { toast } from "sonner";
 
 const ADMIN_EMAIL = 'jose@gmail.com';
 
@@ -18,6 +19,7 @@ const AdminDashboard = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState('30');
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
   // Vérification de l'authentification et des droits admin
   useEffect(() => {
@@ -27,13 +29,49 @@ const AdminDashboard = () => {
         return;
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('id', session.user.id)
-        .single();
+      if (session.user.email !== ADMIN_EMAIL) {
+        toast.error("Accès non autorisé");
+        navigate('/');
+        return;
+      }
 
-      if (session.user.email !== ADMIN_EMAIL || profile?.user_type !== 'admin') {
+      try {
+        // Vérifier si le profil existe et est admin
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('user_type')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        // Si le profil n'existe pas et que c'est l'email admin, le créer
+        if (!profile && session.user.email === ADMIN_EMAIL) {
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: session.user.id,
+                user_type: 'admin',
+                username: 'admin',
+                full_name: 'Administrateur'
+              }
+            ]);
+
+          if (createError) {
+            console.error('Erreur création profil admin:', createError);
+            toast.error("Erreur lors de la création du profil administrateur");
+            navigate('/');
+            return;
+          }
+        } else if (profile?.user_type !== 'admin') {
+          toast.error("Accès non autorisé");
+          navigate('/');
+          return;
+        }
+
+        setIsCheckingAdmin(false);
+      } catch (error) {
+        console.error('Erreur vérification admin:', error);
+        toast.error("Erreur lors de la vérification des droits administrateur");
         navigate('/');
       }
     };
@@ -50,14 +88,14 @@ const AdminDashboard = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!session?.user && session.user.email === ADMIN_EMAIL
+    enabled: !!session?.user && session.user.email === ADMIN_EMAIL && !isCheckingAdmin
   });
 
   if (!session || session.user.email !== ADMIN_EMAIL) {
     return null;
   }
 
-  if (isLoading) {
+  if (isLoading || isCheckingAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
