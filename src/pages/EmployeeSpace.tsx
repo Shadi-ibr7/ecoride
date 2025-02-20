@@ -135,9 +135,9 @@ const EmployeeSpace = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 mt-4">
         <h1 className="text-2xl font-bold mb-6">Espace Employé</h1>
 
         <Tabs defaultValue="reviews" className="space-y-4">
