@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { format } from 'date-fns';
@@ -5,6 +6,7 @@ import { fr } from 'date-fns/locale';
 import { AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import RideHeader from '@/components/rides/RideHeader';
@@ -27,51 +30,69 @@ import { useRideBooking } from '@/hooks/useRideBooking';
 import { useAuth } from '@/hooks/useAuth';
 import type { Ride } from '@/types/ride';
 
-const mockRide: Ride = {
-  id: "123e4567-e89b-12d3-a456-426614174000",
-  driver: {
-    id: 1,
-    name: "Marie L.",
-    rating: 4.8,
-    photoUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop",
-    preferences: ["Pas de fumée", "Conversation amicale", "Musique calme"],
-    reviews: [
-      {
-        id: 1,
-        author: "Thomas R.",
-        rating: 5,
-        comment: "Excellent voyage, Marie est une conductrice très agréable et prudente.",
-        date: "2024-03-15"
-      },
-      {
-        id: 2,
-        author: "Sophie M.",
-        rating: 4.5,
-        comment: "Très bon trajet, ponctuelle et sympathique.",
-        date: "2024-03-10"
-      }
-    ]
-  },
-  vehicle: {
-    brand: "Tesla",
-    model: "Model 3",
-    energyType: "Électrique"
-  },
-  availableSeats: 3,
-  price: 15,
-  departureCity: "Lyon",
-  arrivalCity: "Paris",
-  departureTime: "2024-04-15T08:00:00",
-  arrivalTime: "2024-04-15T13:00:00",
-  isEcological: true
-};
-
 const RideDetails = () => {
   const { id } = useParams();
-  const ride = id ? { ...mockRide, id } : mockRide;
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { session } = useAuth();
   const { bookRide } = useRideBooking();
+
+  const { data: ride, isLoading, error } = useQuery({
+    queryKey: ['ride', id],
+    queryFn: async () => {
+      const { data: rideData, error } = await supabase
+        .from('rides')
+        .select(`
+          *,
+          driver:profiles!rides_driver_id_fkey (
+            id,
+            full_name,
+            rating,
+            photo_url,
+            preferences
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      // Transform the data to match our Ride type
+      const transformedRide: Ride = {
+        id: rideData.id,
+        driver: {
+          id: rideData.driver.id,
+          name: rideData.driver.full_name,
+          rating: rideData.driver.rating || 4.5,
+          photoUrl: rideData.driver.photo_url || "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop",
+          preferences: rideData.driver.preferences || ["Pas de fumée", "Conversation amicale", "Musique calme"],
+          reviews: [] // We'll need to add an API endpoint to fetch reviews
+        },
+        vehicle: {
+          brand: rideData.vehicle_brand || "Tesla",
+          model: rideData.vehicle_model || "Model 3",
+          energyType: rideData.vehicle_energy_type || "Électrique"
+        },
+        availableSeats: rideData.available_seats,
+        price: rideData.price,
+        departureCity: rideData.departure_address,
+        arrivalCity: rideData.arrival_address,
+        departureTime: rideData.departure_time,
+        arrivalTime: rideData.arrival_time,
+        isEcological: true
+      };
+
+      return transformedRide;
+    },
+    enabled: !!id
+  });
+
+  if (isLoading) {
+    return <div>Chargement...</div>;
+  }
+
+  if (error || !ride) {
+    return <div>Une erreur est survenue lors du chargement du trajet.</div>;
+  }
 
   const handleParticipateClick = () => {
     if (!session) {
