@@ -18,7 +18,7 @@ export interface Database {
           avatar_url: string
           rating: number
           preferences: string[]
-          user_type: 'passenger' | 'driver' | 'both' | 'admin' | null
+          user_type: 'passenger' | 'driver' | 'both' | 'admin' | 'employee' | null
         }
         Insert: {
           id: string
@@ -28,7 +28,7 @@ export interface Database {
           avatar_url?: string
           rating?: number
           preferences?: string[]
-          user_type?: 'passenger' | 'driver' | 'both' | 'admin'
+          user_type?: 'passenger' | 'driver' | 'both' | 'admin' | 'employee'
         }
         Update: {
           id?: string
@@ -38,7 +38,7 @@ export interface Database {
           avatar_url?: string
           rating?: number
           preferences?: string[]
-          user_type?: 'passenger' | 'driver' | 'both' | 'admin'
+          user_type?: 'passenger' | 'driver' | 'both' | 'admin' | 'employee'
         }
       }
       rides: {
