@@ -59,7 +59,7 @@ const Navbar = () => {
               <span>Contact</span>
             </Link>
 
-            {session && !isLoading ? (
+            {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -102,15 +102,23 @@ const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : !session ? (
-              <Link 
-                to="/login" 
-                className="text-gray-700 hover:text-primary-600 flex items-center space-x-2"
-              >
-                <User className="w-5 h-5" />
-                <span>Connexion</span>
-              </Link>
-            ) : null}
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link 
+                  to="/login" 
+                  className="text-gray-700 hover:text-primary-600 flex items-center space-x-2"
+                >
+                  <User className="w-5 h-5" />
+                  <span>Connexion</span>
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors"
+                >
+                  Inscription
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -119,4 +127,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
