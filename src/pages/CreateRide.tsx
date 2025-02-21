@@ -5,94 +5,92 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from '@/hooks/useAuth';
 import RideInformationForm from '@/components/rides/create/RideInformationForm';
 import PriceAndSeatsForm from '@/components/rides/create/PriceAndSeatsForm';
 import VehicleForm from '@/components/rides/create/VehicleForm';
-
 const CreateRide = () => {
   const navigate = useNavigate();
-  const { session } = useAuth();
+  const {
+    session
+  } = useAuth();
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [showNewVehicleForm, setShowNewVehicleForm] = useState(false);
   const [price, setPrice] = useState<number>(2);
 
   // Récupérer les véhicules de l'utilisateur
-  const { data: vehicles } = useQuery({
+  const {
+    data: vehicles
+  } = useQuery({
     queryKey: ['vehicles', session?.user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('vehicles')
-        .select('*')
-        .eq('owner_id', session?.user?.id);
-      
+      const {
+        data,
+        error
+      } = await supabase.from('vehicles').select('*').eq('owner_id', session?.user?.id);
       if (error) throw error;
       return data;
     },
-    enabled: !!session?.user?.id,
+    enabled: !!session?.user?.id
   });
 
   // Vérifier si l'utilisateur est un chauffeur
-  const { data: userProfile } = useQuery({
+  const {
+    data: userProfile
+  } = useQuery({
     queryKey: ['profile', session?.user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('id', session?.user?.id)
-        .single();
-      
+      const {
+        data,
+        error
+      } = await supabase.from('profiles').select('user_type').eq('id', session?.user?.id).single();
       if (error) throw error;
       return data;
     },
-    enabled: !!session?.user?.id,
+    enabled: !!session?.user?.id
   });
 
   // Mutation pour créer un nouveau véhicule
   const createVehicle = useMutation({
     mutationFn: async (vehicleData: any) => {
-      const { data, error } = await supabase
-        .from('vehicles')
-        .insert([{ ...vehicleData, owner_id: session?.user?.id }])
-        .select()
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('vehicles').insert([{
+        ...vehicleData,
+        owner_id: session?.user?.id
+      }]).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success('Véhicule ajouté avec succès');
       setSelectedVehicle(data.id);
       setShowNewVehicleForm(false);
-    },
+    }
   });
 
   // Mutation pour créer un nouveau trajet
   const createRide = useMutation({
     mutationFn: async (rideData: any) => {
-      const { error } = await supabase
-        .from('rides')
-        .insert([{ ...rideData, driver_id: session?.user?.id }]);
-
+      const {
+        error
+      } = await supabase.from('rides').insert([{
+        ...rideData,
+        driver_id: session?.user?.id
+      }]);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success('Trajet créé avec succès');
       navigate('/mes-trajets');
-    },
+    }
   });
 
   // Vérifier si l'utilisateur n'est pas un chauffeur
   if (userProfile && userProfile.user_type !== 'driver' && userProfile.user_type !== 'both') {
-    return (
-      <div className="min-h-screen bg-gray-50">
+    return <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <Card>
@@ -104,14 +102,11 @@ const CreateRide = () => {
             </CardHeader>
           </Card>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
     if (showNewVehicleForm) {
       await createVehicle.mutateAsync({
         brand: formData.get('brand'),
@@ -122,13 +117,11 @@ const CreateRide = () => {
         energy_type: formData.get('energy_type')
       });
     }
-
     const requestedPrice = Number(formData.get('price'));
     if (requestedPrice < 2) {
       toast.error('Le prix minimum est de 2 crédits (frais de plateforme)');
       return;
     }
-
     await createRide.mutateAsync({
       vehicle_id: selectedVehicle,
       departure_address: formData.get('departure'),
@@ -142,11 +135,9 @@ const CreateRide = () => {
       vehicle_energy_type: formData.get('energy_type') || vehicles?.find(v => v.id === selectedVehicle)?.energy_type
     });
   };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
+  return <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 my-[80px]">
         <Card>
           <CardHeader>
             <CardTitle>Proposer un trajet</CardTitle>
@@ -157,20 +148,11 @@ const CreateRide = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <RideInformationForm />
-              <PriceAndSeatsForm 
-                price={price}
-                onPriceChange={setPrice}
-              />
-              <VehicleForm
-                vehicles={vehicles}
-                selectedVehicle={selectedVehicle}
-                onVehicleSelect={setSelectedVehicle}
-                showNewVehicleForm={showNewVehicleForm}
-                onToggleNewVehicleForm={() => {
-                  setShowNewVehicleForm(!showNewVehicleForm);
-                  setSelectedVehicle(null);
-                }}
-              />
+              <PriceAndSeatsForm price={price} onPriceChange={setPrice} />
+              <VehicleForm vehicles={vehicles} selectedVehicle={selectedVehicle} onVehicleSelect={setSelectedVehicle} showNewVehicleForm={showNewVehicleForm} onToggleNewVehicleForm={() => {
+              setShowNewVehicleForm(!showNewVehicleForm);
+              setSelectedVehicle(null);
+            }} />
               <Button type="submit" className="w-full">
                 Créer le trajet
               </Button>
@@ -178,8 +160,6 @@ const CreateRide = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default CreateRide;
