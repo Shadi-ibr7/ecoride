@@ -10,11 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useProfile } from '@/hooks/useProfile';
 
 const Navbar = () => {
   const { session, signOut } = useAuth();
-  const { profile, isLoading } = useProfile(session?.user?.id);
 
   const handleSignOut = () => {
     signOut.mutate();
@@ -29,9 +27,6 @@ const Navbar = () => {
       .toUpperCase()
       .slice(0, 2);
   };
-
-  const isAdmin = profile?.user_type === 'admin';
-  const isEmployee = profile?.user_type === 'employee';
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
@@ -65,14 +60,14 @@ const Navbar = () => {
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
                       <AvatarFallback className="bg-primary-100 text-primary-600">
-                        {getInitials(profile?.full_name)}
+                        {getInitials(session.user?.email)}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuItem className="font-medium text-sm">
-                    {profile?.full_name || profile?.username || session.user?.email}
+                    {session.user?.email}
                   </DropdownMenuItem>
                   <Link to="/profile">
                     <DropdownMenuItem className="cursor-pointer">
@@ -80,21 +75,21 @@ const Navbar = () => {
                       <span>Mon Profil</span>
                     </DropdownMenuItem>
                   </Link>
-                  {isAdmin && (
-                    <Link to="/admin">
-                      <DropdownMenuItem className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Administration</span>
-                      </DropdownMenuItem>
-                    </Link>
-                  )}
-                  {(isAdmin || isEmployee) && (
-                    <Link to="/employee">
-                      <DropdownMenuItem className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Espace Employé</span>
-                      </DropdownMenuItem>
-                    </Link>
+                  {session && (
+                    <>
+                      <Link to="/admin">
+                        <DropdownMenuItem className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Administration</span>
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link to="/employee">
+                        <DropdownMenuItem className="cursor-pointer">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Espace Employé</span>
+                        </DropdownMenuItem>
+                      </Link>
+                    </>
                   )}
                   <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -103,21 +98,13 @@ const Navbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center space-x-4">
-                <Link 
-                  to="/login" 
-                  className="text-gray-700 hover:text-primary-600 flex items-center space-x-2"
-                >
-                  <User className="w-5 h-5" />
-                  <span>Connexion</span>
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors"
-                >
-                  Inscription
-                </Link>
-              </div>
+              <Link 
+                to="/login" 
+                className="text-gray-700 hover:text-primary-600 flex items-center space-x-2"
+              >
+                <User className="w-5 h-5" />
+                <span>Connexion</span>
+              </Link>
             )}
           </div>
         </div>

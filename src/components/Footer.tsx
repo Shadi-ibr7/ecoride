@@ -25,26 +25,21 @@ const Footer = () => {
               </div>
             </div>
           </div>
-          
-          <div>
-            <h4 className="font-semibold text-lg mb-4">Liens utiles</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
-                  À propos
-                </Link>
-              </li>
-              <li>
-                <Link to="/legal" className="text-gray-300 hover:text-white transition-colors">
-                  Mentions légales
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">
-                  Politique de confidentialité
-                </Link>
-              </li>
-            </ul>
+
+          {/* Quick Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Liens rapides</h3>
+            <div className="flex flex-col space-y-2">
+              <Link to="/rides" className="text-gray-600 hover:text-primary-600 transition-colors">
+                Trajets disponibles
+              </Link>
+              <Link to="/contact" className="text-gray-600 hover:text-primary-600 transition-colors">
+                Nous contacter
+              </Link>
+              <Link to="/rides/create" className="text-gray-600 hover:text-primary-600 transition-colors">
+                Proposer un trajet
+              </Link>
+            </div>
           </div>
 
           {/* Legal Links */}

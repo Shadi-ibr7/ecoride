@@ -551,45 +551,6 @@ export type Database = {
           },
         ]
       }
-      vehicles: {
-        Row: {
-          brand: string
-          color: string
-          created_at: string | null
-          energy_type: string
-          id: string
-          license_plate: string
-          model: string
-          owner_id: string | null
-          seats: number
-          updated_at: string | null
-        }
-        Insert: {
-          brand: string
-          color: string
-          created_at?: string | null
-          energy_type: string
-          id?: string
-          license_plate: string
-          model: string
-          owner_id?: string | null
-          seats?: number
-          updated_at?: string | null
-        }
-        Update: {
-          brand?: string
-          color?: string
-          created_at?: string | null
-          energy_type?: string
-          id?: string
-          license_plate?: string
-          model?: string
-          owner_id?: string | null
-          seats?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       voiture: {
         Row: {
           couleur: string | null
