@@ -1,33 +1,85 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from 'react';
-import { toast } from "sonner";
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface VehicleInputs {
   brand: string;
   model: string;
   licensePlate: string;
-  registrationDate: string;
   color: string;
   seats: string;
+  energyType: string;
 }
 
 const VehicleForm = () => {
+  const { session } = useAuth();
+  const queryClient = useQueryClient();
   const [vehicleInputs, setVehicleInputs] = useState<VehicleInputs>({
     brand: '',
     model: '',
     licensePlate: '',
-    registrationDate: '',
     color: '',
-    seats: '4'
+    seats: '4',
+    energyType: ''
   });
 
-  const handleAddVehicle = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Véhicule ajouté avec succès');
+    
+    if (!session?.user) {
+      toast.error("Vous devez être connecté pour ajouter un véhicule");
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('vehicles')
+        .insert([{
+          owner_id: session.user.id,
+          brand: vehicleInputs.brand,
+          model: vehicleInputs.model,
+          license_plate: vehicleInputs.licensePlate,
+          color: vehicleInputs.color,
+          seats: parseInt(vehicleInputs.seats),
+          energy_type: vehicleInputs.energyType
+        }]);
+
+      if (error) {
+        console.error('Error adding vehicle:', error);
+        toast.error("Erreur lors de l'ajout du véhicule");
+        return;
+      }
+
+      toast.success('Véhicule ajouté avec succès');
+      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+      
+      // Reset form
+      setVehicleInputs({
+        brand: '',
+        model: '',
+        licensePlate: '',
+        color: '',
+        seats: '4',
+        energyType: ''
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("Une erreur est survenue");
+    }
   };
 
   return (
@@ -39,7 +91,7 @@ const VehicleForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleAddVehicle} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="brand">Marque</Label>
@@ -69,16 +121,6 @@ const VehicleForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="registrationDate">Date de première immatriculation</Label>
-              <Input 
-                id="registrationDate" 
-                type="date" 
-                value={vehicleInputs.registrationDate} 
-                onChange={e => setVehicleInputs({...vehicleInputs, registrationDate: e.target.value})} 
-                required 
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="color">Couleur</Label>
               <Input 
                 id="color" 
@@ -88,11 +130,29 @@ const VehicleForm = () => {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="energyType">Type d'énergie</Label>
+              <Select 
+                value={vehicleInputs.energyType} 
+                onValueChange={(value) => setVehicleInputs({...vehicleInputs, energyType: value})}
+              >
+                <SelectTrigger id="energyType">
+                  <SelectValue placeholder="Sélectionner le type d'énergie" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Essence">Essence</SelectItem>
+                  <SelectItem value="Diesel">Diesel</SelectItem>
+                  <SelectItem value="Électrique">Électrique</SelectItem>
+                  <SelectItem value="Hybride">Hybride</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="seats">Nombre de places</Label>
               <Input 
                 id="seats" 
                 type="number" 
-                min="1" 
+                min="1"
+                max="9"
                 value={vehicleInputs.seats} 
                 onChange={e => setVehicleInputs({...vehicleInputs, seats: e.target.value})} 
                 required 
