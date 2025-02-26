@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
@@ -11,36 +10,32 @@ import { Loader2 } from "lucide-react";
 import NoRidesFound from "@/components/rides/NoRidesFound";
 import type { FilterValues } from "@/components/RideFilters";
 import type { Ride } from "@/types/ride";
-
 const Rides = () => {
   const [searchParams, setSearchParams] = useState({
     departureCity: "",
     arrivalCity: "",
-    date: "",
+    date: ""
   });
-
   const [filters, setFilters] = useState<FilterValues>({
     isEcological: false,
     maxPrice: null,
     maxDuration: null,
-    minRating: null,
+    minRating: null
   });
-
-  const { data: rides, isLoading } = useQuery({
+  const {
+    data: rides,
+    isLoading
+  } = useQuery({
     queryKey: ["rides", searchParams],
     queryFn: async () => {
-      let query = supabase
-        .from("rides")
-        .select(`
+      let query = supabase.from("rides").select(`
           *,
           driver:driver_id (
             id,
             full_name,
             rating
           )
-        `)
-        .eq('status', 'pending');
-
+        `).eq('status', 'pending');
       if (searchParams.departureCity) {
         query = query.ilike("departure_address", `%${searchParams.departureCity}%`);
       }
@@ -50,9 +45,10 @@ const Rides = () => {
       if (searchParams.date) {
         query = query.eq("departure_time", searchParams.date);
       }
-
-      const { data, error } = await query;
-
+      const {
+        data,
+        error
+      } = await query;
       if (error) throw error;
 
       // Transform the data to match the Ride type
@@ -79,40 +75,35 @@ const Rides = () => {
         },
         isEcological: rideData.vehicle_energy_type === "Électrique"
       }));
-
       return transformedData;
     }
   });
-
-  const handleSearch = (params: { departureCity: string; arrivalCity: string; date: string }) => {
+  const handleSearch = (params: {
+    departureCity: string;
+    arrivalCity: string;
+    date: string;
+  }) => {
     setSearchParams(params);
   };
-
   const handleFiltersChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
   };
-
   const getNearestRideDate = () => {
     if (!rides || rides.length === 0) return null;
     const dates = rides.map(ride => ride.departureTime);
     return dates.sort()[0];
   };
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen">
+    return <div className="min-h-screen">
         <Navbar />
         <div className="flex flex-col items-center justify-center flex-1 p-4">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-[130px]">
         <h1 className="text-4xl font-bold text-center mb-8">
           Trouvez votre covoiturage idéal
         </h1>
@@ -122,21 +113,11 @@ const Rides = () => {
             <RideFilters onFiltersChange={handleFiltersChange} />
           </aside>
           <div className="flex-1">
-            {rides && rides.length > 0 ? (
-              <RidesList 
-                rides={rides} 
-                from={searchParams.departureCity || "Toutes les villes"} 
-                to={searchParams.arrivalCity || "Toutes les villes"} 
-              />
-            ) : (
-              <NoRidesFound nearestRideDate={getNearestRideDate()} />
-            )}
+            {rides && rides.length > 0 ? <RidesList rides={rides} from={searchParams.departureCity || "Toutes les villes"} to={searchParams.arrivalCity || "Toutes les villes"} /> : <NoRidesFound nearestRideDate={getNearestRideDate()} />}
           </div>
         </div>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Rides;
