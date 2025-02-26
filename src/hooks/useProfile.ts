@@ -25,9 +25,6 @@ export const useProfile = (userId?: string) => {
         console.error('Error fetching profile:', error);
         throw error;
       }
-
-      // Log pour debug
-      console.log('Profile fetched:', data);
       
       return data as Profile;
     },
@@ -38,21 +35,24 @@ export const useProfile = (userId?: string) => {
     mutationFn: async (updates: ProfileUpdate) => {
       if (!userId) throw new Error('User ID is required');
 
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('profiles')
         .update(updates)
-        .eq('id', userId);
+        .eq('id', userId)
+        .select()
+        .single();
 
       if (error) throw error;
+      return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile', userId] });
+    onSuccess: (data) => {
+      // Mettre à jour directement le cache avec les nouvelles données
+      queryClient.setQueryData(['profile', userId], data);
       toast.success("Profil mis à jour avec succès");
     },
     onError: (error) => {
-      toast.error("Erreur lors de la mise à jour du profil", {
-        description: error.message
-      });
+      console.error('Error updating profile:', error);
+      toast.error("Erreur lors de la mise à jour du profil");
     },
   });
 
