@@ -29,14 +29,17 @@ const Rides = () => {
   const { data: rides, isLoading } = useQuery({
     queryKey: ["rides", searchParams],
     queryFn: async () => {
-      console.log("Fetching rides with params:", searchParams);
-      
       let query = supabase
         .from("rides")
         .select(`
           *,
-          driver:profiles(*)
-        `);
+          driver:driver_id (
+            id,
+            full_name,
+            rating
+          )
+        `)
+        .eq('status', 'pending');
 
       if (searchParams.departureCity) {
         query = query.ilike("departure_address", `%${searchParams.departureCity}%`);
@@ -49,8 +52,6 @@ const Rides = () => {
       }
 
       const { data, error } = await query;
-
-      console.log("Query response:", { data, error });
 
       if (error) throw error;
 
@@ -68,7 +69,7 @@ const Rides = () => {
           name: rideData.driver?.full_name || "Conducteur",
           rating: rideData.driver?.rating || 4.5,
           photoUrl: rideData.driver?.photo_url || "/placeholder.svg",
-          preferences: rideData.driver?.preferences || [],
+          preferences: [],
           reviews: []
         },
         vehicle: {
@@ -78,8 +79,6 @@ const Rides = () => {
         },
         isEcological: rideData.vehicle_energy_type === "Électrique"
       }));
-
-      console.log("Transformed data:", transformedData);
 
       return transformedData;
     }
@@ -93,10 +92,8 @@ const Rides = () => {
     setFilters(newFilters);
   };
 
-  // Trouver la date la plus proche d'un trajet disponible
   const getNearestRideDate = () => {
     if (!rides || rides.length === 0) return null;
-    
     const dates = rides.map(ride => ride.departureTime);
     return dates.sort()[0];
   };
