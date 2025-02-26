@@ -16,7 +16,7 @@ type UserType = NonNullable<Database['public']['Tables']['profiles']['Row']['use
 const UserProfile = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
-  const { profile, updateProfile } = useProfile(session?.user?.id);
+  const { profile, updateProfile, isLoading } = useProfile(session?.user?.id);
 
   useEffect(() => {
     if (!session) {
@@ -24,7 +24,7 @@ const UserProfile = () => {
     }
   }, [session, navigate]);
 
-  if (!session) {
+  if (!session || isLoading) {
     return null;
   }
 
@@ -35,9 +35,12 @@ const UserProfile = () => {
       });
       toast.success('Type d\'utilisateur mis à jour');
     } catch (error) {
+      console.error('Error updating user type:', error);
       toast.error('Erreur lors de la mise à jour du type d\'utilisateur');
     }
   };
+
+  const showDriverComponents = profile?.user_type === 'driver' || profile?.user_type === 'both';
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -53,7 +56,7 @@ const UserProfile = () => {
               onUserTypeChange={handleUserTypeChange} 
             />
 
-            {(profile?.user_type === 'driver' || profile?.user_type === 'both') && (
+            {showDriverComponents && (
               <>
                 <VehicleManagement />
                 <DriverPreferences />
@@ -69,4 +72,3 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-
