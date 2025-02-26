@@ -1,14 +1,14 @@
 
-import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 const VehicleList = () => {
   const { session } = useAuth();
 
-  const { data: vehicles, isLoading } = useQuery({
+  const { data: vehicles, isLoading, error } = useQuery({
     queryKey: ['vehicles', session?.user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -21,6 +21,22 @@ const VehicleList = () => {
     enabled: !!session?.user?.id
   });
 
+  if (error) {
+    console.error('Error fetching vehicles:', error);
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Mes véhicules</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-red-500">
+            Une erreur est survenue lors du chargement des véhicules
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (isLoading) {
     return (
       <Card>
@@ -28,8 +44,8 @@ const VehicleList = () => {
           <CardTitle>Mes véhicules</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center text-gray-500">
-            Chargement...
+          <div className="flex justify-center items-center py-4">
+            <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         </CardContent>
       </Card>
