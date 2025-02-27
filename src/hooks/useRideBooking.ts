@@ -14,6 +14,65 @@ export const useRideBooking = () => {
         throw new Error('Vous devez être connecté pour réserver un trajet');
       }
 
+      // Détection des trajets de démonstration (IDs commençant par "demo-")
+      const isDemoRide = rideId.startsWith('demo-');
+      
+      if (isDemoRide) {
+        // Pour les trajets de démo, on vérifie juste les crédits mais on ne fait pas de vraie réservation en base
+        const { data: userCredits, error: creditsError } = await supabase
+          .from('user_credits')
+          .select('credits, id')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (creditsError) throw creditsError;
+
+        // Si aucun enregistrement de crédit n'existe
+        if (!userCredits) {
+          // Créer un enregistrement de crédits avec 0 crédits
+          const { error: insertError } = await supabase
+            .from('user_credits')
+            .insert([
+              { 
+                user_id: session.user.id,
+                credits: 0
+              }
+            ]);
+
+          if (insertError) {
+            console.error('Erreur lors de la création des crédits:', insertError);
+            throw new Error('Crédit insuffisant. Vous avez 0 crédits, le trajet en coûte ' + price);
+          }
+          throw new Error('Crédit insuffisant. Vous avez 0 crédits, le trajet en coûte ' + price);
+        }
+
+        if (userCredits.credits < price) {
+          throw new Error(`Crédit insuffisant. Vous avez ${userCredits.credits} crédits, le trajet en coûte ${price}`);
+        }
+
+        // Simuler une réservation réussie pour les trajets de démo
+        // Déduire les crédits
+        const { error: updateError } = await supabase
+          .from('user_credits')
+          .update({ credits: userCredits.credits - price })
+          .eq('user_id', session.user.id);
+
+        if (updateError) {
+          console.error('Erreur lors de la mise à jour des crédits:', updateError);
+          throw updateError;
+        }
+
+        // Retourner un objet de réservation simulé
+        return {
+          id: `demo-booking-${Date.now()}`,
+          ride_id: rideId,
+          passenger_id: session.user.id,
+          booking_status: 'confirmed',
+          created_at: new Date().toISOString()
+        };
+      }
+
+      // Code original pour les vrais trajets (non-démo)
       // 1. Vérifier les crédits de l'utilisateur
       const { data: userCredits, error: creditsError } = await supabase
         .from('user_credits')
