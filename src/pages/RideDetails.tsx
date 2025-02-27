@@ -36,62 +36,173 @@ const RideDetails = () => {
   const { session } = useAuth();
   const { bookRide } = useRideBooking();
 
+  // Récupération des trajets de démonstration si l'ID commence par "demo-"
+  const isDemoRide = id?.startsWith('demo-');
+
   const { data: ride, isLoading, error } = useQuery({
     queryKey: ['ride', id],
     queryFn: async () => {
-      const { data: rideData, error } = await supabase
-        .from('rides')
-        .select(`
-          *,
-          driver:profiles!rides_driver_id_fkey (
-            id,
-            full_name,
-            rating,
-            photo_url,
-            preferences
-          )
-        `)
-        .eq('id', id)
-        .single();
+      // Si c'est un trajet de démonstration, retourner des données statiques
+      if (isDemoRide) {
+        // Trajets de démonstration correspondant à ceux définis dans Rides.tsx
+        const demoRides = {
+          'demo-1': {
+            id: "demo-1",
+            departureCity: "Paris",
+            arrivalCity: "Lyon",
+            departureTime: new Date(Date.now() + 86400000).toISOString(),
+            arrivalTime: new Date(Date.now() + 86400000 + 10800000).toISOString(),
+            price: 25,
+            availableSeats: 3,
+            driver: {
+              id: 101,
+              name: "Thomas Martin",
+              rating: 4.7,
+              photoUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+              preferences: ["Calme", "Musique"],
+              reviews: []
+            },
+            vehicle: {
+              brand: "Renault",
+              model: "Zoe",
+              energyType: "Électrique"
+            },
+            isEcological: true
+          },
+          'demo-2': {
+            id: "demo-2",
+            departureCity: "Marseille",
+            arrivalCity: "Nice",
+            departureTime: new Date(Date.now() + 172800000).toISOString(),
+            arrivalTime: new Date(Date.now() + 172800000 + 7200000).toISOString(),
+            price: 15,
+            availableSeats: 2,
+            driver: {
+              id: 102,
+              name: "Sophie Dubois",
+              rating: 4.9,
+              photoUrl: "https://randomuser.me/api/portraits/women/44.jpg",
+              preferences: ["Discussion", "Musique"],
+              reviews: []
+            },
+            vehicle: {
+              brand: "Toyota",
+              model: "Prius",
+              energyType: "Hybride"
+            },
+            isEcological: true
+          },
+          'demo-3': {
+            id: "demo-3",
+            departureCity: "Bordeaux",
+            arrivalCity: "Toulouse",
+            departureTime: new Date(Date.now() + 259200000).toISOString(),
+            arrivalTime: new Date(Date.now() + 259200000 + 7200000).toISOString(),
+            price: 18,
+            availableSeats: 4,
+            driver: {
+              id: 103,
+              name: "Pierre Leroy",
+              rating: 4.5,
+              photoUrl: "https://randomuser.me/api/portraits/men/67.jpg",
+              preferences: ["Non-fumeur", "Animaux acceptés"],
+              reviews: []
+            },
+            vehicle: {
+              brand: "Volkswagen",
+              model: "ID.4",
+              energyType: "Électrique"
+            },
+            isEcological: true
+          }
+        };
+        
+        // @ts-ignore - Nous savons que l'ID est valide
+        return demoRides[id] as Ride;
+      }
 
-      if (error) throw error;
+      // Sinon, récupérer les données depuis Supabase
+      try {
+        const { data: rideData, error } = await supabase
+          .from('rides')
+          .select(`
+            *,
+            driver:profiles(id, full_name, rating, photo_url, preferences)
+          `)
+          .eq('id', id)
+          .single();
 
-      // Transform the data to match our Ride type
-      const transformedRide: Ride = {
-        id: rideData.id,
-        driver: {
-          id: rideData.driver.id,
-          name: rideData.driver.full_name,
-          rating: rideData.driver.rating || 4.5,
-          photoUrl: rideData.driver.photo_url || "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop",
-          preferences: rideData.driver.preferences || ["Pas de fumée", "Conversation amicale", "Musique calme"],
-          reviews: [] // We'll need to add an API endpoint to fetch reviews
-        },
-        vehicle: {
-          brand: rideData.vehicle_brand || "Tesla",
-          model: rideData.vehicle_model || "Model 3",
-          energyType: rideData.vehicle_energy_type || "Électrique"
-        },
-        availableSeats: rideData.available_seats,
-        price: rideData.price,
-        departureCity: rideData.departure_address,
-        arrivalCity: rideData.arrival_address,
-        departureTime: rideData.departure_time,
-        arrivalTime: rideData.arrival_time,
-        isEcological: true
-      };
+        if (error) throw error;
 
-      return transformedRide;
+        if (!rideData) throw new Error("Trajet non trouvé");
+
+        // Transformer les données pour correspondre à notre type Ride
+        const transformedRide: Ride = {
+          id: rideData.id,
+          driver: {
+            id: rideData.driver?.id || 0,
+            name: rideData.driver?.full_name || "Conducteur inconnu",
+            rating: rideData.driver?.rating || 4.5,
+            photoUrl: rideData.driver?.photo_url || "https://randomuser.me/api/portraits/lego/1.jpg",
+            preferences: rideData.driver?.preferences || ["Pas de préférences spécifiées"],
+            reviews: []
+          },
+          vehicle: {
+            brand: rideData.vehicle_brand || "Non spécifié",
+            model: rideData.vehicle_model || "Non spécifié",
+            energyType: rideData.vehicle_energy_type || "Essence"
+          },
+          availableSeats: rideData.available_seats,
+          price: rideData.price,
+          departureCity: rideData.departure_address,
+          arrivalCity: rideData.arrival_address,
+          departureTime: rideData.departure_time,
+          arrivalTime: rideData.arrival_time,
+          isEcological: rideData.vehicle_energy_type === "Électrique"
+        };
+
+        return transformedRide;
+      } catch (error) {
+        console.error("Erreur lors du chargement du trajet:", error);
+        throw error;
+      }
     },
-    enabled: !!id
+    retry: false
   });
 
   if (isLoading) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   if (error || !ride) {
-    return <div>Une erreur est survenue lors du chargement du trajet.</div>;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 pt-24 pb-12">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h1 className="text-2xl font-semibold text-gray-900 mb-4">Une erreur est survenue lors du chargement du trajet</h1>
+              <p className="text-gray-600 mb-6">Nous n'avons pas pu récupérer les informations pour ce trajet.</p>
+              <Button 
+                onClick={() => window.history.back()}
+                variant="outline"
+              >
+                Retour aux trajets
+              </Button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   const handleParticipateClick = () => {
@@ -147,7 +258,7 @@ const RideDetails = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-2xl font-bold text-primary-600">{ride.price} crédits</p>
+                        <p className="text-2xl font-bold text-primary-600">{ride.price} €</p>
                         <p className="text-sm text-gray-600">
                           {ride.availableSeats} place{ride.availableSeats > 1 ? 's' : ''} disponible{ride.availableSeats > 1 ? 's' : ''}
                         </p>
@@ -190,7 +301,7 @@ const RideDetails = () => {
             <AlertDialogDescription className="text-sm">
               Vous êtes sur le point de réserver une place pour le trajet
               {' '}{ride.departureCity} → {ride.arrivalCity}{' '}
-              pour {ride.price} crédits.
+              pour {ride.price} €.
               <br /><br />
               Date de départ : {format(new Date(ride.departureTime), 'PPP à HH:mm', { locale: fr })}
             </AlertDialogDescription>
