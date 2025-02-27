@@ -438,7 +438,15 @@ export type Database = {
           vehicle_energy_type?: string | null
           vehicle_model?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rides_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role: {
         Row: {
