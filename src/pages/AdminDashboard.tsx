@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -12,11 +11,11 @@ import UsersTable from '@/components/admin/UsersTable';
 import Navbar from '@/components/Navbar';
 import { Loader2 } from 'lucide-react';
 import { toast } from "sonner";
-
 const ADMIN_EMAIL = 'jose@gmail.com';
-
 const AdminDashboard = () => {
-  const { session } = useAuth();
+  const {
+    session
+  } = useAuth();
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState('30');
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
@@ -28,34 +27,28 @@ const AdminDashboard = () => {
         navigate('/login');
         return;
       }
-
       if (session.user.email !== ADMIN_EMAIL) {
         toast.error("Accès non autorisé");
         navigate('/');
         return;
       }
-
       try {
         // Vérifier si le profil existe et est admin
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('user_type')
-          .eq('id', session.user.id)
-          .maybeSingle();
+        const {
+          data: profile,
+          error
+        } = await supabase.from('profiles').select('user_type').eq('id', session.user.id).maybeSingle();
 
         // Si le profil n'existe pas et que c'est l'email admin, le créer
         if (!profile && session.user.email === ADMIN_EMAIL) {
-          const { error: createError } = await supabase
-            .from('profiles')
-            .insert([
-              {
-                id: session.user.id,
-                user_type: 'admin',
-                username: 'admin',
-                full_name: 'Administrateur'
-              }
-            ]);
-
+          const {
+            error: createError
+          } = await supabase.from('profiles').insert([{
+            id: session.user.id,
+            user_type: 'admin',
+            username: 'admin',
+            full_name: 'Administrateur'
+          }]);
           if (createError) {
             console.error('Erreur création profil admin:', createError);
             toast.error("Erreur lors de la création du profil administrateur");
@@ -67,7 +60,6 @@ const AdminDashboard = () => {
           navigate('/');
           return;
         }
-
         setIsCheckingAdmin(false);
       } catch (error) {
         console.error('Erreur vérification admin:', error);
@@ -75,14 +67,18 @@ const AdminDashboard = () => {
         navigate('/');
       }
     };
-
     checkAdminAccess();
   }, [session, navigate]);
-
-  const { data: stats, isLoading } = useQuery({
+  const {
+    data: stats,
+    isLoading
+  } = useQuery({
     queryKey: ['admin-stats', selectedPeriod],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_admin_stats', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('get_admin_stats', {
         days_period: parseInt(selectedPeriod)
       });
       if (error) throw error;
@@ -90,23 +86,17 @@ const AdminDashboard = () => {
     },
     enabled: !!session?.user && session.user.email === ADMIN_EMAIL && !isCheckingAdmin
   });
-
   if (!session || session.user.email !== ADMIN_EMAIL) {
     return null;
   }
-
   if (isLoading || isCheckingAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
+  return <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-[117px]">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Tableau de bord administrateur</h1>
           <div className="flex items-center gap-4">
@@ -152,8 +142,6 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default AdminDashboard;
