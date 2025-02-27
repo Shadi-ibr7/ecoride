@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
@@ -42,15 +42,33 @@ const NavbarStyled = () => {
                     <Button>Inscription</Button>
                   </Link>
                 </div>
-              ) : null}
+              ) : (
+                <div className="space-x-4">
+                  <Link to="/profile">
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <UserRound size={18} />
+                      Mon Profil
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
           {/* Mobile Menu Button */}
           {isMobile && (
-            <Button variant="ghost" size="icon" onClick={toggleMenu}>
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
+            <div className="flex items-center gap-4">
+              {session && (
+                <Link to="/profile">
+                  <Button variant="outline" size="icon">
+                    <UserRound className="h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
+              <Button variant="ghost" size="icon" onClick={toggleMenu}>
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           )}
         </div>
 
