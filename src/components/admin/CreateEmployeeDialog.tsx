@@ -87,20 +87,20 @@ const CreateEmployeeDialog = () => {
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl w-[90%] h-auto rounded-xl p-4 md:p-6">
-        <DialogHeader className="space-y-2">
-          <DialogTitle className="text-2xl md:text-3xl font-playfair text-center">
+      <DialogContent className="sm:max-w-md md:max-w-xl w-[95%] mx-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">
             Créer un nouveau compte employé
           </DialogTitle>
-          <DialogDescription className="text-base md:text-lg text-center">
+          <DialogDescription>
             Remplissez les informations pour créer un compte employé
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm md:text-base flex items-center gap-2">
+              <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Email
               </Label>
@@ -114,12 +114,11 @@ const CreateEmployeeDialog = () => {
                   email: e.target.value
                 }))}
                 required
-                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm md:text-base flex items-center gap-2">
+              <Label htmlFor="password" className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
                 Mot de passe
               </Label>
@@ -133,12 +132,11 @@ const CreateEmployeeDialog = () => {
                   password: e.target.value
                 }))}
                 required
-                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm md:text-base flex items-center gap-2">
+              <Label htmlFor="username" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Pseudo
               </Label>
@@ -151,12 +149,11 @@ const CreateEmployeeDialog = () => {
                   username: e.target.value
                 }))}
                 required
-                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm md:text-base flex items-center gap-2">
+              <Label htmlFor="fullName" className="flex items-center gap-2">
                 <UserCircle className="h-4 w-4" />
                 Nom complet
               </Label>
@@ -169,24 +166,21 @@ const CreateEmployeeDialog = () => {
                   fullName: e.target.value
                 }))}
                 required
-                className="h-10 md:h-12 text-sm md:text-base transition-shadow duration-200 focus-within:shadow-md"
               />
             </div>
           </div>
 
-          <DialogFooter className="flex flex-col sm:flex-row justify-center gap-4 mt-6 pt-4 border-t">
+          <DialogFooter className="pt-4 flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="w-full sm:w-32 h-10 md:h-12 text-sm md:text-base"
             >
               Annuler
             </Button>
             <Button
               type="submit"
               disabled={createEmployee.isPending}
-              className="w-full sm:w-32 h-10 md:h-12 text-sm md:text-base bg-primary hover:bg-primary/90"
             >
               {createEmployee.isPending ? 'Création...' : 'Créer le compte'}
             </Button>

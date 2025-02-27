@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -96,7 +97,7 @@ const AdminDashboard = () => {
   }
   return <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container mx-auto px-4 py-[117px]">
+      <div className="container mx-auto px-4 py-[120px]">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Tableau de bord administrateur</h1>
           <div className="flex items-center gap-4">
