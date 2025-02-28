@@ -77,7 +77,7 @@ const CreateEmployeeDialog = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="fixed inset-0 flex items-center justify-center p-0 mx-[240px] ">
-        <div className="sm:max-w-lg w-full bg-white p-6 border shadow-lg rounded-lg py- py-[160px] mx-0">
+        <div className="sm:max-w-lg w-full bg-white p-6 border rounded-lg py- py-[160px] mx-0">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Créer un nouveau compte employé</DialogTitle>
             <DialogDescription>Remplissez les informations pour créer un compte employé</DialogDescription>
