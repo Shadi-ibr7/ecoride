@@ -62,20 +62,14 @@ const CreateEmployeeDialog = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(state) => {
-        if (!state) {
-          setTimeout(() => setOpen(false), 100);
-        } else {
-          setOpen(true);
-        }
-      }}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2 w-full">
           <UserPlus className="h-4 w-4" />
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg w-full mx-auto p-6 border bg-white shadow-lg rounded-lg z-50" hidden={!open}>
+      <DialogContent className="sm:max-w-lg w-full mx-auto p-6 border bg-white shadow-lg rounded-lg z-50 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Créer un nouveau compte employé</DialogTitle>
           <DialogDescription>Remplissez les informations pour créer un compte employé</DialogDescription>
