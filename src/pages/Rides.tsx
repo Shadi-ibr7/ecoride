@@ -6,9 +6,10 @@ import RidesList from "@/components/rides/RidesList";
 import SearchBar from "@/components/SearchBar";
 import RideFilters from "@/components/RideFilters";
 import Footer from "@/components/Footer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import NoRidesFound from "@/components/rides/NoRidesFound";
+import { useLocation } from "react-router-dom";
 import type { FilterValues } from "@/components/RideFilters";
 import type { Ride } from "@/types/ride";
 
@@ -86,6 +87,7 @@ const placeholderRides: Ride[] = [
 ];
 
 const Rides = () => {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useState({
     departureCity: "",
     arrivalCity: "",
@@ -97,6 +99,22 @@ const Rides = () => {
     maxDuration: null,
     minRating: null
   });
+
+  // Récupérer les paramètres de recherche depuis l'URL
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const departureParam = queryParams.get('departure');
+    const arrivalParam = queryParams.get('arrival');
+    const dateParam = queryParams.get('date');
+
+    if (departureParam || arrivalParam || dateParam) {
+      setSearchParams({
+        departureCity: departureParam || "",
+        arrivalCity: arrivalParam || "",
+        date: dateParam || ""
+      });
+    }
+  }, [location.search]);
 
   const {
     data: dbRides,

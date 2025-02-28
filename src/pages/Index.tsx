@@ -1,3 +1,4 @@
+
 import NavbarStyled from '@/components/NavbarStyled';
 import Footer from '@/components/Footer';
 import SearchBar from '@/components/SearchBar';
@@ -17,7 +18,7 @@ const Index = () => {
           <p className="text-gray-600 text-center max-w-3xl mx-auto mb-12 text-lg">
             Rejoignez notre communauté de covoiturage écologique et économique. Ensemble, réduisons notre empreinte carbone.
           </p>
-          <SearchBar onSearch={params => console.log(params)} />
+          <SearchBar />
         </div>
       </section>
 
