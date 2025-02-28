@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -20,20 +19,13 @@ const CreateEmployeeDialog = () => {
   });
 
   const createEmployee = useMutation({
-    mutationFn: async (employeeData: typeof newEmployee) => {
-      // Vérifier d'abord si l'email existe déjà
-      const {
-        data: existingUser
-      } = await supabase.from('profiles').select('id').eq('email', employeeData.email).single();
+    mutationFn: async (employeeData) => {
+      const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', employeeData.email).single();
       if (existingUser) {
         throw new Error('Cet email est déjà utilisé');
       }
 
-      // Créer le compte employé via la fonction RPC
-      const {
-        data,
-        error
-      } = await supabase.rpc('create_employee_account', {
+      const { data, error } = await supabase.rpc('create_employee_account', {
         p_email: employeeData.email,
         p_password: employeeData.password,
         p_username: employeeData.username,
@@ -41,14 +33,9 @@ const CreateEmployeeDialog = () => {
       });
       if (error) throw error;
 
-      // Attendre un peu pour s'assurer que le compte est bien créé
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Vérifier que le compte a bien été créé
-      const {
-        data: newUser,
-        error: checkError
-      } = await supabase.from('profiles').select('*').eq('username', employeeData.username).single();
+      const { data: newUser, error: checkError } = await supabase.from('profiles').select('*').eq('username', employeeData.username).single();
       if (checkError || !newUser) {
         throw new Error('Erreur lors de la création du compte');
       }
@@ -59,22 +46,17 @@ const CreateEmployeeDialog = () => {
       toast.success('Compte employé créé avec succès', {
         description: 'L\'employé peut maintenant se connecter avec son email et mot de passe.'
       });
-      setNewEmployee({
-        email: '',
-        password: '',
-        username: '',
-        fullName: ''
-      });
+      setNewEmployee({ email: '', password: '', username: '', fullName: '' });
       setOpen(false);
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast.error('Erreur lors de la création du compte', {
         description: error.message
       });
     }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     createEmployee.mutate(newEmployee);
   };
@@ -87,34 +69,20 @@ const CreateEmployeeDialog = () => {
           Créer un compte employé
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md md:max-w-xl w-[95%] mx-auto">
+      <DialogContent className="sm:max-w-lg w-full mx-auto p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            Créer un nouveau compte employé
-          </DialogTitle>
-          <DialogDescription>
-            Remplissez les informations pour créer un compte employé
-          </DialogDescription>
+          <DialogTitle className="text-xl font-bold">Créer un nouveau compte employé</DialogTitle>
+          <DialogDescription>Remplissez les informations pour créer un compte employé</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Email
               </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@exemple.com"
-                value={newEmployee.email}
-                onChange={e => setNewEmployee(prev => ({
-                  ...prev,
-                  email: e.target.value
-                }))}
-                required
-              />
+              <Input id="email" type="email" placeholder="email@exemple.com" value={newEmployee.email} onChange={e => setNewEmployee(prev => ({ ...prev, email: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
@@ -122,17 +90,7 @@ const CreateEmployeeDialog = () => {
                 <Lock className="h-4 w-4" />
                 Mot de passe
               </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={newEmployee.password}
-                onChange={e => setNewEmployee(prev => ({
-                  ...prev,
-                  password: e.target.value
-                }))}
-                required
-              />
+              <Input id="password" type="password" placeholder="••••••••" value={newEmployee.password} onChange={e => setNewEmployee(prev => ({ ...prev, password: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
@@ -140,16 +98,7 @@ const CreateEmployeeDialog = () => {
                 <User className="h-4 w-4" />
                 Pseudo
               </Label>
-              <Input
-                id="username"
-                placeholder="pseudo"
-                value={newEmployee.username}
-                onChange={e => setNewEmployee(prev => ({
-                  ...prev,
-                  username: e.target.value
-                }))}
-                required
-              />
+              <Input id="username" placeholder="pseudo" value={newEmployee.username} onChange={e => setNewEmployee(prev => ({ ...prev, username: e.target.value }))} required />
             </div>
 
             <div className="space-y-2">
@@ -157,33 +106,13 @@ const CreateEmployeeDialog = () => {
                 <UserCircle className="h-4 w-4" />
                 Nom complet
               </Label>
-              <Input
-                id="fullName"
-                placeholder="Nom et prénom"
-                value={newEmployee.fullName}
-                onChange={e => setNewEmployee(prev => ({
-                  ...prev,
-                  fullName: e.target.value
-                }))}
-                required
-              />
+              <Input id="fullName" placeholder="Nom et prénom" value={newEmployee.fullName} onChange={e => setNewEmployee(prev => ({ ...prev, fullName: e.target.value }))} required />
             </div>
           </div>
 
-          <DialogFooter className="pt-4 flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Annuler
-            </Button>
-            <Button
-              type="submit"
-              disabled={createEmployee.isPending}
-            >
-              {createEmployee.isPending ? 'Création...' : 'Créer le compte'}
-            </Button>
+          <DialogFooter className="flex justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+            <Button type="submit" disabled={createEmployee.isPending}>{createEmployee.isPending ? 'Création...' : 'Créer le compte'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -192,3 +121,4 @@ const CreateEmployeeDialog = () => {
 };
 
 export default CreateEmployeeDialog;
+
