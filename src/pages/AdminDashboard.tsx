@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -12,16 +11,16 @@ import UsersTable from '@/components/admin/UsersTable';
 import Navbar from '@/components/Navbar';
 import { Loader2 } from 'lucide-react';
 import { toast } from "sonner";
+
 const ADMIN_EMAIL = 'jose@gmail.com';
+
 const AdminDashboard = () => {
-  const {
-    session
-  } = useAuth();
+  const { session } = useAuth();
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState('30');
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // Vérification de l'authentification et des droits admin
   useEffect(() => {
     const checkAdminAccess = async () => {
       if (!session?.user) {
@@ -34,24 +33,12 @@ const AdminDashboard = () => {
         return;
       }
       try {
-        // Vérifier si le profil existe et est admin
-        const {
-          data: profile,
-          error
-        } = await supabase.from('profiles').select('user_type').eq('id', session.user.id).maybeSingle();
-
-        // Si le profil n'existe pas et que c'est l'email admin, le créer
+        const { data: profile, error } = await supabase.from('profiles').select('user_type').eq('id', session.user.id).maybeSingle();
         if (!profile && session.user.email === ADMIN_EMAIL) {
-          const {
-            error: createError
-          } = await supabase.from('profiles').insert([{
-            id: session.user.id,
-            user_type: 'admin',
-            username: 'admin',
-            full_name: 'Administrateur'
-          }]);
+          const { error: createError } = await supabase.from('profiles').insert([
+            { id: session.user.id, user_type: 'admin', username: 'admin', full_name: 'Administrateur' }
+          ]);
           if (createError) {
-            console.error('Erreur création profil admin:', createError);
             toast.error("Erreur lors de la création du profil administrateur");
             navigate('/');
             return;
@@ -63,23 +50,17 @@ const AdminDashboard = () => {
         }
         setIsCheckingAdmin(false);
       } catch (error) {
-        console.error('Erreur vérification admin:', error);
         toast.error("Erreur lors de la vérification des droits administrateur");
         navigate('/');
       }
     };
     checkAdminAccess();
   }, [session, navigate]);
-  const {
-    data: stats,
-    isLoading
-  } = useQuery({
+
+  const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats', selectedPeriod],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.rpc('get_admin_stats', {
+      const { data, error } = await supabase.rpc('get_admin_stats', {
         days_period: parseInt(selectedPeriod)
       });
       if (error) throw error;
@@ -87,6 +68,7 @@ const AdminDashboard = () => {
     },
     enabled: !!session?.user && session.user.email === ADMIN_EMAIL && !isCheckingAdmin
   });
+
   if (!session || session.user.email !== ADMIN_EMAIL) {
     return null;
   }
@@ -101,9 +83,13 @@ const AdminDashboard = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Tableau de bord administrateur</h1>
           <div className="flex items-center gap-4">
-            <CreateEmployeeDialog />
+            <button onClick={() => setIsFormOpen(true)} className="btn-primary">
+              Ajouter un employé
+            </button>
           </div>
         </div>
+
+        {isFormOpen && <CreateEmployeeDialog open={isFormOpen} onClose={() => setIsFormOpen(false)} />}
 
         <div className="grid gap-6 md:grid-cols-2 mb-8">
           <Card>
