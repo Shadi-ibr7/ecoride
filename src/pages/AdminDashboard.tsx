@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -19,7 +20,6 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState('30');
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
-  const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     const checkAdminAccess = async () => {
@@ -83,13 +83,12 @@ const AdminDashboard = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Tableau de bord administrateur</h1>
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsFormOpen(true)} className="btn-primary">
-              Ajouter un employé
-            </button>
+            {/* Removed the isFormOpen state and button as we're using the Dialog component directly */}
           </div>
         </div>
 
-        {isFormOpen && <CreateEmployeeDialog open={isFormOpen} onClose={() => setIsFormOpen(false)} />}
+        {/* CreateEmployeeDialog no longer needs props - it manages its own state */}
+        <CreateEmployeeDialog />
 
         <div className="grid gap-6 md:grid-cols-2 mb-8">
           <Card>

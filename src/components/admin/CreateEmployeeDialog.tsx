@@ -9,10 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Mail, Lock, User, UserCircle } from 'lucide-react';
 
+// Define proper TypeScript interface for employee data
+interface EmployeeData {
+  email: string;
+  password: string;
+  username: string;
+  fullName: string;
+}
+
 const CreateEmployeeDialog = () => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [newEmployee, setNewEmployee] = useState({
+  const [newEmployee, setNewEmployee] = useState<EmployeeData>({
     email: '',
     password: '',
     username: '',
@@ -20,7 +28,7 @@ const CreateEmployeeDialog = () => {
   });
 
   const createEmployee = useMutation({
-    mutationFn: async employeeData => {
+    mutationFn: async (employeeData: EmployeeData) => {
       const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', employeeData.email).single();
       
       if (existingUser) {
@@ -68,7 +76,7 @@ const CreateEmployeeDialog = () => {
     }
   });
 
-  const handleSubmit = e => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createEmployee.mutate(newEmployee);
   };
